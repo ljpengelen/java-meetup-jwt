@@ -42,6 +42,7 @@ public class SessionController {
                 .signWith(SignatureAlgorithm.HS512, encodedKey)
                 .compact();
         Cookie cookie = new Cookie("jwt", jwt);
+        cookie.setHttpOnly(true);
         response.addCookie(cookie);
 
         return new LoginResponse(LoginStatus.LOGGED_IN);
