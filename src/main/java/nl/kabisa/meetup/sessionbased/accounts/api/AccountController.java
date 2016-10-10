@@ -1,19 +1,23 @@
 package nl.kabisa.meetup.sessionbased.accounts.api;
 
+import io.jsonwebtoken.Jwts;
 import nl.kabisa.meetup.sessionbased.accounts.repository.Account;
 import nl.kabisa.meetup.sessionbased.accounts.repository.AccountRepository;
-import nl.kabisa.meetup.sessionbased.interceptors.authentication.RequireSession;
+import nl.kabisa.meetup.sessionbased.interceptors.authentication.RequireValidToken;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/account")
 public class AccountController {
+
+    @Value("${secret_key}")
+    private String encodedKey;
 
     private StrongPasswordEncryptor encryptor = new StrongPasswordEncryptor();
 
@@ -33,18 +37,18 @@ public class AccountController {
         return new SanitizedAccountDto(createdAccount.getId(), createdAccount.getUsername());
     }
 
-    @RequireSession
+    @RequireValidToken
     @RequestMapping()
-    public SanitizedAccountDto getAccount(HttpSession session) {
-        Account account = getAccountForLoggedInUser(session);
+    public SanitizedAccountDto getAccount(@CookieValue(value = "jwt", defaultValue = "") String jwt) {
+        Account account = getAccountForLoggedInUser(jwt);
         return new SanitizedAccountDto(account.getId(), account.getUsername());
     }
 
-    @RequireSession
+    @RequireValidToken
     @RequestMapping(method = RequestMethod.PUT)
-    public SanitizedAccountDto updateAccount(@RequestBody @Valid AccountDto request, HttpSession session) throws UsernameInUseException {
+    public SanitizedAccountDto updateAccount(@RequestBody @Valid AccountDto request, @CookieValue(value = "jwt", defaultValue = "") String jwt) throws UsernameInUseException {
         Account existingAccount = accountRepository.findByUsername(request.getUsername());
-        Account accountForLoggedInUser = getAccountForLoggedInUser(session);
+        Account accountForLoggedInUser = getAccountForLoggedInUser(jwt);
         if (existingAccount != null && existingAccount.getId() != accountForLoggedInUser.getId()) {
             throw new UsernameInUseException(request.getUsername());
         }
@@ -57,15 +61,15 @@ public class AccountController {
         return new SanitizedAccountDto(updatedAccount.getId(), updatedAccount.getUsername());
     }
 
-    @RequireSession
+    @RequireValidToken
     @RequestMapping(method = RequestMethod.DELETE)
-    public @ResponseStatus(HttpStatus.NO_CONTENT) void deleteAccount(HttpSession session) {
-        Account account = getAccountForLoggedInUser(session);
+    public @ResponseStatus(HttpStatus.NO_CONTENT) void deleteAccount(@CookieValue(value = "jwt", defaultValue = "") String jwt) {
+        Account account = getAccountForLoggedInUser(jwt);
         accountRepository.delete(account);
     }
 
-    private Account getAccountForLoggedInUser(HttpSession session) {
-        Long accountId = (Long) session.getAttribute("accountId");
+    private Account getAccountForLoggedInUser(String jwt) {
+        Long accountId = Long.parseLong(Jwts.parser().setSigningKey(encodedKey).parseClaimsJws(jwt).getBody().getSubject());
         if (accountId == null) {
             throw new RuntimeException("Unable to find account identifier of logged in user");
         }

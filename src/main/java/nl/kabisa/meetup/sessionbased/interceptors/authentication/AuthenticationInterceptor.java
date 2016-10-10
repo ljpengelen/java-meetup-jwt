@@ -1,34 +1,41 @@
 package nl.kabisa.meetup.sessionbased.interceptors.authentication;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.util.WebUtils;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 @Component
 public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
+
+    @Value("${secret_key}")
+    private String encodedKey;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
-            if (handlerMethod.hasMethodAnnotation(RequireSession.class)) {
-                checkSession(request);
+            if (handlerMethod.hasMethodAnnotation(RequireValidToken.class)) {
+                checkToken(request);
             }
         }
         return true;
     }
 
-    private void checkSession(HttpServletRequest request) throws AuthenticationException {
-        HttpSession session = request.getSession();
-        if (session == null) {
+    private void checkToken(HttpServletRequest request) throws AuthenticationException {
+        Cookie jwtCookie = WebUtils.getCookie(request, "jwt");
+        if (jwtCookie == null) {
             throw new AuthenticationException();
         }
 
-        if (session.getAttribute("accountId") == null) {
+        String token = jwtCookie.getValue();
+        if (StringUtils.isBlank(token)) {
             throw new AuthenticationException();
         }
     }
