@@ -14,14 +14,14 @@ import org.springframework.test.annotation.DirtiesContext;
 public class AuthenticationIntegrationTest extends IntegrationTest {
 
     @Test
-    public void missingRequiredSession() {
+    public void missingValidToken() {
         ResponseEntity<AccountDto> response = testRestTemplate.getForEntity(getAccountUri(), AccountDto.class);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
 
     @Test
     @DirtiesContext
-    public void requiredSessionPresent() {
+    public void validTokenPresent() {
         ResponseEntity<AccountDto> accountToCreate = testRestTemplate.postForEntity(getAccountUri(), new AccountDto("username", "password"), AccountDto.class);
         Assert.assertEquals(HttpStatus.OK, accountToCreate.getStatusCode());
 
