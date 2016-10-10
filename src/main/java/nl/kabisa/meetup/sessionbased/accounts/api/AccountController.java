@@ -16,7 +16,7 @@ import javax.validation.Valid;
 @RequestMapping("/account")
 public class AccountController {
 
-    @Value("${secret_key}")
+    @Value("${jwt.secret_key}")
     private String encodedKey;
 
     private StrongPasswordEncryptor encryptor = new StrongPasswordEncryptor();
@@ -39,14 +39,14 @@ public class AccountController {
 
     @RequireValidToken
     @RequestMapping()
-    public SanitizedAccountDto getAccount(@CookieValue(value = "jwt", defaultValue = "") String jwt) {
+    public SanitizedAccountDto getAccount(@CookieValue(value = "jwt-long", defaultValue = "") String jwt) {
         Account account = getAccountForLoggedInUser(jwt);
         return new SanitizedAccountDto(account.getId(), account.getUsername());
     }
 
     @RequireValidToken
     @RequestMapping(method = RequestMethod.PUT)
-    public SanitizedAccountDto updateAccount(@RequestBody @Valid AccountDto request, @CookieValue(value = "jwt", defaultValue = "") String jwt) throws UsernameInUseException {
+    public SanitizedAccountDto updateAccount(@RequestBody @Valid AccountDto request, @CookieValue(value = "jwt-long", defaultValue = "") String jwt) throws UsernameInUseException {
         Account existingAccount = accountRepository.findByUsername(request.getUsername());
         Account accountForLoggedInUser = getAccountForLoggedInUser(jwt);
         if (existingAccount != null && existingAccount.getId() != accountForLoggedInUser.getId()) {
@@ -63,7 +63,7 @@ public class AccountController {
 
     @RequireValidToken
     @RequestMapping(method = RequestMethod.DELETE)
-    public @ResponseStatus(HttpStatus.NO_CONTENT) void deleteAccount(@CookieValue(value = "jwt", defaultValue = "") String jwt) {
+    public @ResponseStatus(HttpStatus.NO_CONTENT) void deleteAccount(@CookieValue(value = "jwt-long", defaultValue = "") String jwt) {
         Account account = getAccountForLoggedInUser(jwt);
         accountRepository.delete(account);
     }

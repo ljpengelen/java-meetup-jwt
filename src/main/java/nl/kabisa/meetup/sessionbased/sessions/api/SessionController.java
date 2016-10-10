@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.time.Instant;
+import java.util.Date;
 
 @RequestMapping("/session")
 @RestController
@@ -20,8 +22,11 @@ public class SessionController {
 
     private StrongPasswordEncryptor encryptor = new StrongPasswordEncryptor();
 
-    @Value("${secret_key}")
+    @Value("${jwt.secret_key}")
     private String encodedKey;
+
+    @Value("${jwt.long_expiration_in_seconds}")
+    private int expiration;
 
     @Autowired
     AccountRepository accountRepository;
@@ -38,11 +43,13 @@ public class SessionController {
         }
 
         String jwt = Jwts.builder()
+                .setExpiration(Date.from(Instant.now().plusSeconds(expiration)))
                 .setSubject(account.getId().toString())
                 .signWith(SignatureAlgorithm.HS512, encodedKey)
                 .compact();
-        Cookie cookie = new Cookie("jwt", jwt);
+        Cookie cookie = new Cookie("jwt-long", jwt);
         cookie.setHttpOnly(true);
+        cookie.setMaxAge(expiration);
         response.addCookie(cookie);
 
         return new LoginResponse(LoginStatus.LOGGED_IN);
@@ -50,7 +57,12 @@ public class SessionController {
 
     @RequestMapping(method = RequestMethod.DELETE)
     public @ResponseStatus(HttpStatus.NO_CONTENT) void logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("jwt", null);
+        deleteCookie("jwt-long", response);
+        deleteCookie("jwt-short", response);
+    }
+
+    private void deleteCookie(String name, HttpServletResponse response) {
+        Cookie cookie = new Cookie(name, null);
         cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
