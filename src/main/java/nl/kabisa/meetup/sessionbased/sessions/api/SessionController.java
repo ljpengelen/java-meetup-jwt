@@ -50,6 +50,7 @@ public class SessionController {
         Cookie cookie = new Cookie("jwt-long", jwt);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(expiration);
+        cookie.setPath("/");
         response.addCookie(cookie);
 
         return new LoginResponse(LoginStatus.LOGGED_IN);

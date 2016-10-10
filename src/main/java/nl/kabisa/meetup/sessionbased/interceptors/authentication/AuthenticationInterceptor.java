@@ -78,6 +78,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         Cookie jwtShortCookie = new Cookie("jwt-short", token);
         jwtShortCookie.setHttpOnly(true);
         jwtShortCookie.setMaxAge(expiration);
+        jwtShortCookie.setPath("/");
 
         response.addCookie(jwtShortCookie);
     }
