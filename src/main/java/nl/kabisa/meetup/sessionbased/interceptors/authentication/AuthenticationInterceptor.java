@@ -1,6 +1,6 @@
 package nl.kabisa.meetup.sessionbased.interceptors.authentication;
 
-import org.apache.commons.lang3.StringUtils;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -35,7 +35,9 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         }
 
         String token = jwtCookie.getValue();
-        if (StringUtils.isBlank(token)) {
+        try {
+            Jwts.parser().setSigningKey(encodedKey).parse(token);
+        } catch (Exception e) {
             throw new AuthenticationException();
         }
     }
