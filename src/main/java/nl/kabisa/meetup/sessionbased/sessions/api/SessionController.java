@@ -50,6 +50,7 @@ public class SessionController {
     @RequestMapping(method = RequestMethod.DELETE)
     public @ResponseStatus(HttpStatus.NO_CONTENT) void logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("jwt", null);
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
 }
