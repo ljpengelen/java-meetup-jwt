@@ -1,6 +1,7 @@
 package nl.kabisa.meetup.sessionbased.interceptors.csrf;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -12,16 +13,8 @@ import java.net.URL;
 @Component
 public class CsrfInterceptor extends HandlerInterceptorAdapter {
 
-    private static final String TARGET = "http://localhost";
-    private final URL TARGET_URL;
-
-    public CsrfInterceptor() {
-        try {
-            TARGET_URL = new URL(TARGET);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("'" + TARGET + "' is a malformed URL");
-        }
-    }
+    @Value("${csrf.target}")
+    private String target;
 
     private void checkRequestedWithHeader(HttpServletRequest request) throws CsrfException {
         String requestedWith = request.getHeader("X-Requested-With");
@@ -48,12 +41,13 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
 
     private void compareWithTarget(String origin) throws CsrfException {
         try {
+            URL targetUrl = new URL(target);
             URL originUrl = new URL(origin);
 
             boolean matches = true;
-            matches &= originUrl.getPort() == TARGET_URL.getPort();
-            matches &= originUrl.getHost().equalsIgnoreCase(TARGET_URL.getHost());
-            matches &= originUrl.getProtocol().equalsIgnoreCase(TARGET_URL.getProtocol());
+            matches &= originUrl.getPort() == targetUrl.getPort();
+            matches &= originUrl.getHost().equalsIgnoreCase(targetUrl.getHost());
+            matches &= originUrl.getProtocol().equalsIgnoreCase(targetUrl.getProtocol());
 
             if (!matches) {
                 throw new CsrfException();

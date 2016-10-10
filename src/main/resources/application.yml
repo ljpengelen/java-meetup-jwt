@@ -7,6 +7,9 @@ spring:
     hibernate:
       ddl-auto: update
 secret_key: r+W5pErSHJPMkAGsLzMb5j884ARYQ8AmT25vSN8C0iz2ntIu/cP7domeKpRlt2qMwLcZfqx4A94BTQ6UTD2MVg==
+csrf:
+  enable_check: true
+  target: "http://localhost/"
 
 ---
 
