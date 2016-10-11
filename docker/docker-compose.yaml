@@ -34,4 +34,6 @@ services:
   database:
     image: java-meetup-postgres
     container_name: java-meetup-postgres
+    volumes:
+      - /tmp/java-meetup-postgres:/var/lib/postgresql/data
     restart: always
