@@ -1,5 +1,7 @@
 package nl.kabisa.meetup.sessionbased.interceptors.authentication;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,8 +13,7 @@ import org.springframework.web.util.WebUtils;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.sql.Date;
+import java.util.Date;
 import java.time.Instant;
 
 import static io.jsonwebtoken.Jwts.parser;
@@ -58,14 +59,16 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         }
 
         String token = jwtLongCookie.getValue();
-        String subject;
+        Jws<Claims> jws;
         try {
-            subject = Jwts.parser().setSigningKey(encodedKey).parseClaimsJws(token).getBody().getSubject();
+            jws = Jwts.parser().setSigningKey(encodedKey).parseClaimsJws(token);
         } catch (Exception e) {
             throw new AuthenticationException();
         }
 
-        generateShortToken(response, subject);
+        checkBlackList(jws.getBody().getSubject(), jws.getBody().getExpiration());
+
+        generateShortToken(response, jws.getBody().getSubject());
     }
 
     private void generateShortToken(HttpServletResponse response, String subject) {
@@ -81,5 +84,11 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         jwtShortCookie.setPath("/");
 
         response.addCookie(jwtShortCookie);
+    }
+
+    private void checkBlackList(String subject, Date expiration) {
+        // Throw an AuthenticationException for tokens
+        // with expiration dates and subjects that have
+        // been blacklisted.
     }
 }
