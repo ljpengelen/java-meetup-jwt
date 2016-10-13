@@ -13,3 +13,6 @@ Once Postgres is running you can build the app with Maven and run the resulting 
 1. Build an image for the container for the app using the command at the top of its Docker file
 (https://github.com/ljpengelen/java-meetup-jwt/blob/master/Dockerfile).
 1. Follow the instructions in the repository for the front end.
+
+# Running the app with Docker Compose
+After building the required images, navigate to the `docker` folder and execute `docker-compose up -d`.
