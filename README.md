@@ -9,6 +9,8 @@ The be able to run the app locally, you need a running Postgres instance on port
 Once Postgres is running you can build the app with Maven and run the resulting jar or open it in your IDE and run it from there.
 
 # Running the app in a Docker container
+1. Build the jar with Maven by executing ```mvn clean package -DskipTests```.
+You don't need to skip the tests if you have the Postgres instance described above running.
 1. Build an image for the container for Postgres using the command at the top of its Docker file (https://github.com/ljpengelen/java-meetup-jwt/blob/master/docker/Dockerfile-postgres).
 1. Build an image for the container for the app using the command at the top of its Docker file
 (https://github.com/ljpengelen/java-meetup-jwt/blob/master/Dockerfile).
