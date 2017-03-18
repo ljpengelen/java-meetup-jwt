@@ -1,20 +1,25 @@
 package nl.kabisa.meetup.sessionbased.sessions.api;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import nl.kabisa.meetup.sessionbased.accounts.repository.Account;
-import nl.kabisa.meetup.sessionbased.accounts.repository.AccountRepository;
+import static nl.kabisa.meetup.sessionbased.TokenNames.ACCESS_TOKEN_NAME;
+import static nl.kabisa.meetup.sessionbased.TokenNames.REFRESH_TOKEN_NAME;
+
+import java.time.Instant;
+import java.util.Date;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.time.Instant;
-import java.util.Date;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import nl.kabisa.meetup.sessionbased.accounts.repository.Account;
+import nl.kabisa.meetup.sessionbased.accounts.repository.AccountRepository;
 
 @RequestMapping("/session")
 @RestController
@@ -47,7 +52,7 @@ public class SessionController {
                 .setSubject(account.getId().toString())
                 .signWith(SignatureAlgorithm.HS512, encodedKey)
                 .compact();
-        Cookie cookie = new Cookie("jwt-long", jwt);
+        Cookie cookie = new Cookie(REFRESH_TOKEN_NAME, jwt);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(expiration);
         cookie.setPath("/");
@@ -58,8 +63,8 @@ public class SessionController {
 
     @RequestMapping(method = RequestMethod.DELETE)
     public @ResponseStatus(HttpStatus.NO_CONTENT) void logout(HttpServletResponse response) {
-        deleteCookie("jwt-long", response);
-        deleteCookie("jwt-short", response);
+        deleteCookie(REFRESH_TOKEN_NAME, response);
+        deleteCookie(ACCESS_TOKEN_NAME, response);
     }
 
     private void deleteCookie(String name, HttpServletResponse response) {

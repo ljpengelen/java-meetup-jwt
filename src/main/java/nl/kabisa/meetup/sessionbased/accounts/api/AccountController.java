@@ -1,16 +1,19 @@
 package nl.kabisa.meetup.sessionbased.accounts.api;
 
-import io.jsonwebtoken.Jwts;
-import nl.kabisa.meetup.sessionbased.accounts.repository.Account;
-import nl.kabisa.meetup.sessionbased.accounts.repository.AccountRepository;
-import nl.kabisa.meetup.sessionbased.interceptors.authentication.RequireValidToken;
+import static nl.kabisa.meetup.sessionbased.TokenNames.REFRESH_TOKEN_NAME;
+
+import javax.validation.Valid;
+
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import io.jsonwebtoken.Jwts;
+import nl.kabisa.meetup.sessionbased.accounts.repository.Account;
+import nl.kabisa.meetup.sessionbased.accounts.repository.AccountRepository;
+import nl.kabisa.meetup.sessionbased.interceptors.authentication.RequireValidToken;
 
 @RestController
 @RequestMapping("/account")
@@ -39,14 +42,15 @@ public class AccountController {
 
     @RequireValidToken
     @RequestMapping()
-    public SanitizedAccountDto getAccount(@CookieValue(value = "jwt-long", defaultValue = "") String jwt) {
+    public SanitizedAccountDto getAccount(@CookieValue(value = REFRESH_TOKEN_NAME, defaultValue = "") String jwt) {
         Account account = getAccountForLoggedInUser(jwt);
         return new SanitizedAccountDto(account.getId(), account.getUsername());
     }
 
     @RequireValidToken
     @RequestMapping(method = RequestMethod.PUT)
-    public SanitizedAccountDto updateAccount(@RequestBody @Valid AccountDto request, @CookieValue(value = "jwt-long", defaultValue = "") String jwt) throws UsernameInUseException {
+    public SanitizedAccountDto updateAccount(
+            @RequestBody @Valid AccountDto request, @CookieValue(value = REFRESH_TOKEN_NAME, defaultValue = "") String jwt) throws UsernameInUseException {
         Account existingAccount = accountRepository.findByUsername(request.getUsername());
         Account accountForLoggedInUser = getAccountForLoggedInUser(jwt);
         if (existingAccount != null && existingAccount.getId() != accountForLoggedInUser.getId()) {
@@ -63,7 +67,7 @@ public class AccountController {
 
     @RequireValidToken
     @RequestMapping(method = RequestMethod.DELETE)
-    public @ResponseStatus(HttpStatus.NO_CONTENT) void deleteAccount(@CookieValue(value = "jwt-long", defaultValue = "") String jwt) {
+    public @ResponseStatus(HttpStatus.NO_CONTENT) void deleteAccount(@CookieValue(value = REFRESH_TOKEN_NAME, defaultValue = "") String jwt) {
         Account account = getAccountForLoggedInUser(jwt);
         accountRepository.delete(account);
     }
