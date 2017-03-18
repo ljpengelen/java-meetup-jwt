@@ -15,29 +15,32 @@ import org.springframework.transaction.TransactionSystemException;
 @ActiveProfiles("test")
 public class AccountIntegrationTest {
 
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+
     @Autowired
     private AccountRepository accountRepository;
 
     @Test
     @DirtiesContext
     public void nonBlankUsernameAndPassword() {
-        accountRepository.save(new Account("username", "password"));
+        accountRepository.save(new Account(USERNAME, PASSWORD));
     }
 
     @Test(expected = TransactionSystemException.class)
     public void blankUsername() {
-        accountRepository.save(new Account("  ", "password"));
+        accountRepository.save(new Account("  ", PASSWORD));
     }
 
     @Test(expected = TransactionSystemException.class)
     public void blankPassword() {
-        accountRepository.save((new Account("username", " ")));
+        accountRepository.save((new Account(USERNAME, " ")));
     }
 
     @Test(expected = DataIntegrityViolationException.class)
     @DirtiesContext
     public void duplicateUsername() {
-        accountRepository.save(new Account("username", "password"));
-        accountRepository.save(new Account("username", "password"));
+        accountRepository.save(new Account(USERNAME, PASSWORD));
+        accountRepository.save(new Account(USERNAME, PASSWORD));
     }
 }

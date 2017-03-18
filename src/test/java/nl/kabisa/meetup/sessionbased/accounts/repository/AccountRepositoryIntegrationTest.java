@@ -14,22 +14,25 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ActiveProfiles("test")
 public class AccountRepositoryIntegrationTest {
 
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
+
     @Autowired
     private AccountRepository accountRepository;
 
     @Test
     @DirtiesContext
     public void findExistingAccountByUsername() {
-        Account accountToCreate = new Account("username", "password");
+        Account accountToCreate = new Account(USERNAME, PASSWORD);
         accountRepository.save(accountToCreate);
 
-        Account foundAccount = accountRepository.findByUsername("username");
+        Account foundAccount = accountRepository.findByUsername(USERNAME);
         Assert.assertEquals(accountToCreate, foundAccount);
     }
 
     @Test
     public void findNonExistingAccountByUsername() {
-        Account account = accountRepository.findByUsername("username");
+        Account account = accountRepository.findByUsername(USERNAME);
         Assert.assertNull(account);
     }
 }
