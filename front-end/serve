@@ -1,1 +1,1 @@
-nginx -c $(pwd)/local/nginx.conf -p $(pwd) -g "daemon off;"
+nginx -c $(pwd)/nginx.conf -p $(pwd) -g "daemon off;"
