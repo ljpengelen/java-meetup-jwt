@@ -1,22 +1,21 @@
 package nl.kabisa.meetup.sessionbased.interceptors.authentication;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import static io.jsonwebtoken.Jwts.parser;
+import static nl.kabisa.meetup.sessionbased.TokenNames.ACCESS_TOKEN_NAME;
+import static nl.kabisa.meetup.sessionbased.TokenNames.REFRESH_TOKEN_NAME;
+
+import java.time.Instant;
+import java.util.Date;
+
+import javax.servlet.http.*;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
-import java.time.Instant;
-
-import static io.jsonwebtoken.Jwts.parser;
+import io.jsonwebtoken.*;
 
 @Component
 public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
@@ -32,33 +31,33 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
             if (handlerMethod.hasMethodAnnotation(RequireValidToken.class)) {
-                checkShortToken(request, response);
+                checkAccessToken(request, response);
             }
         }
         return true;
     }
 
-    private void checkShortToken(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        Cookie jwtShortCookie = WebUtils.getCookie(request, "jwt-short");
-        if (jwtShortCookie == null) {
-            checkLongToken(request, response);
+    private void checkAccessToken(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        Cookie jwtAccessCookie = WebUtils.getCookie(request, ACCESS_TOKEN_NAME);
+        if (jwtAccessCookie == null) {
+            checkRefreshToken(request, response);
         } else {
-            String token = jwtShortCookie.getValue();
+            String token = jwtAccessCookie.getValue();
             try {
                 parser().setSigningKey(encodedKey).parse(token);
             } catch (Exception e) {
-                checkLongToken(request, response);
+                checkRefreshToken(request, response);
             }
         }
     }
 
-    private void checkLongToken(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        Cookie jwtLongCookie = WebUtils.getCookie(request, "jwt-long");
-        if (jwtLongCookie == null) {
+    private void checkRefreshToken(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        Cookie jwtRefreshCookie = WebUtils.getCookie(request, REFRESH_TOKEN_NAME);
+        if (jwtRefreshCookie == null) {
             throw new AuthenticationException();
         }
 
-        String token = jwtLongCookie.getValue();
+        String token = jwtRefreshCookie.getValue();
         Jws<Claims> jws;
         try {
             jws = Jwts.parser().setSigningKey(encodedKey).parseClaimsJws(token);
@@ -68,22 +67,22 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
         checkBlackList(jws.getBody().getSubject(), jws.getBody().getExpiration());
 
-        generateShortToken(response, jws.getBody().getSubject());
+        generateAccessToken(response, jws.getBody().getSubject());
     }
 
-    private void generateShortToken(HttpServletResponse response, String subject) {
+    private void generateAccessToken(HttpServletResponse response, String subject) {
         String token = Jwts.builder()
                 .setSubject(subject)
                 .setExpiration(Date.from(Instant.now().plusSeconds(expiration)))
                 .signWith(SignatureAlgorithm.HS512, encodedKey)
                 .compact();
 
-        Cookie jwtShortCookie = new Cookie("jwt-short", token);
-        jwtShortCookie.setHttpOnly(true);
-        jwtShortCookie.setMaxAge(expiration);
-        jwtShortCookie.setPath("/");
+        Cookie jwtAccessCookie = new Cookie(ACCESS_TOKEN_NAME, token);
+        jwtAccessCookie.setHttpOnly(true);
+        jwtAccessCookie.setMaxAge(expiration);
+        jwtAccessCookie.setPath("/");
 
-        response.addCookie(jwtShortCookie);
+        response.addCookie(jwtAccessCookie);
     }
 
     private void checkBlackList(String subject, Date expiration) {
