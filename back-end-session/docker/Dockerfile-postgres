@@ -1,6 +1,0 @@
-# Execute the following command to build an image:
-# docker build -t java-meetup-postgres -f Dockerfile-postgres .
-
-FROM postgres:9.4
-
-ADD init-db.sh /docker-entrypoint-initdb.d/

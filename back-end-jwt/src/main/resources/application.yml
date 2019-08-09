@@ -2,10 +2,10 @@
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/java_meetup
+    url: "jdbc:h2:file:./db"
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
 jwt:
   secret_key: r+W5pErSHJPMkAGsLzMb5j884ARYQ8AmT25vSN8C0iz2ntIu/cP7domeKpRlt2qMwLcZfqx4A94BTQ6UTD2MVg==
   short_expiration_in_seconds: 60
@@ -19,7 +19,7 @@ csrf:
 spring:
   profiles: test
   datasource:
-    url: jdbc:postgresql://localhost:5432/java_meetup_test
+    url: "jdbc:h2:mem:testdb"
   jpa:
     hibernate:
       ddl-auto: create-drop

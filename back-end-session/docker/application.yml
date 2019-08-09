@@ -2,11 +2,10 @@
 
 spring:
   datasource:
-    url: jdbc:postgresql://java-meetup-postgres:5432/java_meetup
-    username: postgres
+    url: "jdbc:h2:file:./db"
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
 csrf:
   enable_check: true
   target: "http://localhost/"
@@ -16,7 +15,7 @@ csrf:
 spring:
   profiles: test
   datasource:
-    url: jdbc:postgresql://java-meetup-postgres:5432/java_meetup_test
+    url: "jdbc:h2:mem:testdb"
   jpa:
     hibernate:
       ddl-auto: create-drop

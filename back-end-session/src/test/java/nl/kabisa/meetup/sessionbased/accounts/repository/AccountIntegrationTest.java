@@ -1,5 +1,7 @@
 package nl.kabisa.meetup.sessionbased.accounts.repository;
 
+import javax.validation.ConstraintViolationException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +10,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.TransactionSystemException;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -27,12 +28,12 @@ public class AccountIntegrationTest {
         accountRepository.save(new Account(USERNAME, PASSWORD));
     }
 
-    @Test(expected = TransactionSystemException.class)
+    @Test(expected = ConstraintViolationException.class)
     public void blankUsername() {
         accountRepository.save(new Account("  ", PASSWORD));
     }
 
-    @Test(expected = TransactionSystemException.class)
+    @Test(expected = ConstraintViolationException.class)
     public void blankPassword() {
         accountRepository.save((new Account(USERNAME, " ")));
     }
