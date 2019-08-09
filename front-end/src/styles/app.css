@@ -1,0 +1,8 @@
+.credentials-form {
+  max-width: 15rem;
+  margin: 0 auto;
+}
+
+.credentials-form .form-control, button {
+  margin: 1rem;
+}
