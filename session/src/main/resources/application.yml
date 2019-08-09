@@ -1,0 +1,21 @@
+---
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/java_meetup
+  jpa:
+    hibernate:
+      ddl-auto: update
+csrf:
+  enable_check: true
+  target: "http://localhost/"
+
+---
+
+spring:
+  profiles: test
+  datasource:
+    url: jdbc:postgresql://localhost:5432/java_meetup_test
+  jpa:
+    hibernate:
+      ddl-auto: create-drop

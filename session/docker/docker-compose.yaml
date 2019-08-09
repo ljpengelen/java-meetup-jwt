@@ -1,0 +1,39 @@
+version: '2'
+
+services:
+  back-end-one:
+    image: java-meetup-back-end-session
+    container_name: java-meetup-back-end-session-one
+    restart: always
+    depends_on:
+      - database
+  back-end-two:
+    image: java-meetup-back-end-session
+    container_name: java-meetup-back-end-session-two
+    restart: always
+    depends_on:
+      - database
+  back-end-three:
+    image: java-meetup-back-end-session
+    container_name: java-meetup-back-end-session-three
+    restart: always
+    depends_on:
+      - database
+
+  front-end:
+    image: java-meetup-front-end-session
+    container_name: java-meetup-front-end-session
+    ports:
+      - "80:80"
+    restart: always
+    depends_on:
+      - back-end-one
+      - back-end-two
+      - back-end-three
+
+  database:
+    image: java-meetup-postgres
+    container_name: java-meetup-postgres
+    volumes:
+      - /tmp/java-meetup-postgres:/var/lib/postgresql/data
+    restart: always
