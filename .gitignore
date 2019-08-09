@@ -1,4 +1,3 @@
 .idea
-jwtbased.iml
+*.iml
 target
-/**/.DS_Store
