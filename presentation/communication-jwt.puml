@@ -1,0 +1,15 @@
+@startuml
+Client -> Server : username and password
+Server -> Server : construct JWT
+Server --> Client : JWT
+
+Client -> Server : request with JWT
+Server -> Server : check JWT
+Server --> Client : response
+
+... ...
+
+Client -> Server : request with JWT
+Server -> Server : check JWT
+Server --> Client : response
+@enduml

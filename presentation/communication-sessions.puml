@@ -1,0 +1,21 @@
+@startuml
+Client -> Server : username and password
+
+Server -> Server : start session
+activate Server
+
+Server --> Client : sessionToken
+
+Client -> Server : request with sessionToken
+Server --> Client : response
+
+... ...
+
+Client -> Server : request with sessionToken
+Server --> Client : response
+
+destroy Server
+
+Client -> Server : request with sessionToken
+Server --> Client : error
+@enduml
