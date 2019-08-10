@@ -1,4 +1,13 @@
 # Java Meetup - Session-based Authentication
-This application is meant as a demo for session-based authentication.
+
+This back-end application is meant as a demo for session-based authentication.
 It requires Java 8 and Maven to run locally.
-To run the application in a Docker container, you need Java 8, Maven, and Docker.
+
+## Running tests
+
+Execute `mvn verify` to run the tests and create a JAR.
+
+## Running the app
+
+Execute `mvn package -Dmaven.test.skip` to build a JAR.
+Run the app by executing `java -jar target/<NAME_OF_JAR>.jar`.
