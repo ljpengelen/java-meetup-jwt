@@ -4,12 +4,10 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
@@ -21,7 +19,9 @@ import org.springframework.util.MultiValueMap;
 public class CsrfIntegrationTest {
 
     private static final String SESSION_PATH = "/session";
-    public static final String ORIGIN = "http://localhost";
+
+    @Value("${csrf.target}")
+    private String origin;
 
     @Autowired
     private TestRestTemplate testRestTemplate;
@@ -36,7 +36,7 @@ public class CsrfIntegrationTest {
     public void requestedWithAndOrigin() {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("X-Requested-With", "XMLHttpRequest");
-        headers.add("Origin", ORIGIN);
+        headers.add("Origin", origin);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Void> response = testRestTemplate.exchange(SESSION_PATH, HttpMethod.DELETE, entity, Void.class);
@@ -47,7 +47,7 @@ public class CsrfIntegrationTest {
     public void requestedWithAndReferer() {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("X-Requested-With", "XMLHttpRequest");
-        headers.add("Referer", CsrfIntegrationTest.ORIGIN);
+        headers.add("Referer", origin);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Void> response = testRestTemplate.exchange(SESSION_PATH, HttpMethod.DELETE, entity, Void.class);
@@ -58,8 +58,8 @@ public class CsrfIntegrationTest {
     public void allHeaders() {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
         headers.add("X-Requested-With", "XMLHttpRequest");
-        headers.add("Origin", ORIGIN);
-        headers.add("Referer", ORIGIN);
+        headers.add("Origin", origin);
+        headers.add("Referer", origin);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Void> response = testRestTemplate.exchange(SESSION_PATH, HttpMethod.DELETE, entity, Void.class);
