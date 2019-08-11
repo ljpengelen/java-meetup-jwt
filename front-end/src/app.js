@@ -1,5 +1,28 @@
 var app = app || {};
 
+const sync = Backbone.sync;
+
+Backbone.sync = function(method, model, options) {
+  console.log("BACKBOEN SYNC");
+  console.log(app.token);
+
+  _.extend(options, {
+    headers: {
+      "X-CSRF-TOKEN": app.token
+    }
+  });
+
+  console.log(_)
+  console.log(options.headers);
+
+  sync(method, model, options)
+    .done(function (data, textStatus, jqXHR) {
+      app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
+    }).fail(function (jqXHR) {
+      app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
+    });
+}
+
 app.App = {
   setup: function () {
     this.router = new app.Router({

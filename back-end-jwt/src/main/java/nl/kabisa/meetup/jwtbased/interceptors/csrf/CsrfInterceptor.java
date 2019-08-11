@@ -1,17 +1,21 @@
 package nl.kabisa.meetup.jwtbased.interceptors.csrf;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import javax.servlet.http.*;
+
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.random.RandomDataGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 @Component
 public class CsrfInterceptor extends HandlerInterceptorAdapter {
+
+    public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-TOKEN";
+    public static final String CSRF_TOKEN_COOKIE_NAME = "csrf-token";
 
     @Value("${csrf.target}")
     private String target;
@@ -57,10 +61,27 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
         }
     }
 
+    private String generateToken() {
+        RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+        return randomDataGenerator.nextSecureHexString(24);
+    }
+
+    private void setCsrfTokens(HttpServletResponse response) {
+        String token = generateToken();
+        response.addHeader(CSRF_TOKEN_HEADER_NAME, token);
+
+        Cookie cookie = new Cookie(CSRF_TOKEN_COOKIE_NAME, token);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+    }
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         checkRequestedWithHeader(request);
         checkOrigin(request);
+
+        setCsrfTokens(response);
 
         return true;
     }

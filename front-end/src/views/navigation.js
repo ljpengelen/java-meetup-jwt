@@ -30,10 +30,12 @@ app.NavigationView = function (options) {
     $.ajax({
       url: "/api/session",
       method: "DELETE"
-    }).done(function () {
+    }).done(function (data, textStatus, jqXHR) {
+      app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
       self.flashView.show("You've been logged out", "success");
       self.router.navigate("/", {trigger: true});
-    }).fail(function () {
+    }).fail(function (jqXHR) {
+      app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
       self.flashView.show("An unexpected error occurred while logging out", "danger");
     });
   };

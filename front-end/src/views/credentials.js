@@ -34,14 +34,19 @@ app.CredentialsView = Backbone.View.extend({
         url: "/api/session",
         method: "POST",
         contentType: "application/json",
+        headers: {
+          "X-CSRF-TOKEN": app.token
+        },
         data: JSON.stringify(this.model.toJSON())
-      }).done(function (data) {
+      }).done(function (data, textStatus, jqXHR) {
+        app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
         if (data.status == "INVALID_CREDENTIALS") {
           self.flashView.show("The credentials you provided are invalid", "danger");
         } else {
           self.router.navigate("/account", {trigger: true});
         }
-      }).fail(function () {
+      }).fail(function (jqXHR) {
+        app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
         self.flashView.show("An unexpected error occurred while logging in", "danger");
       });
     }
