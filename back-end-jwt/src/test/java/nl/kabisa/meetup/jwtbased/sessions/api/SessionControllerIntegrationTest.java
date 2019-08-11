@@ -49,12 +49,29 @@ public class SessionControllerIntegrationTest extends IntegrationTest {
     @DirtiesContext
     public void logoutWhileLoggedIn() {
         testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), AccountDto.class);
-        ResponseEntity<LoginResponse> loginResponse = testRestTemplate.postForEntity(getSessionUri(), new LoginRequest(USERNAME, PASSWORD), LoginResponse.class);
-        Assert.assertEquals(LoginStatus.LOGGED_IN, loginResponse.getBody().getStatus());
+        testRestTemplate.postForEntity(getSessionUri(), new LoginRequest(USERNAME, PASSWORD), LoginResponse.class);
+
+        testRestTemplate.delete(getSessionUri());
     }
 
     @Test
     public void logoutWhileLoggedOut() {
         testRestTemplate.delete(getSessionUri());
+    }
+
+    @Test
+    @DirtiesContext
+    public void getStatusWhileLoggedIn() {
+        testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), AccountDto.class);
+        testRestTemplate.postForEntity(getSessionUri(), new LoginRequest(USERNAME, PASSWORD), LoginResponse.class);
+
+        ResponseEntity<StatusResponse> statusResponse = testRestTemplate.getForEntity(getSessionUri(), StatusResponse.class);
+        Assert.assertEquals(SessionStatus.LOGGED_IN, statusResponse.getBody().getStatus());
+    }
+
+    @Test
+    public void getStatusWhileLoggedOut() {
+        ResponseEntity<StatusResponse> statusResponse = testRestTemplate.getForEntity(getSessionUri(), StatusResponse.class);
+        Assert.assertEquals(SessionStatus.LOGGED_OUT, statusResponse.getBody().getStatus());
     }
 }

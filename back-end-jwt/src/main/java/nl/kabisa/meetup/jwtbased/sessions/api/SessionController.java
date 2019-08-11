@@ -61,6 +61,21 @@ public class SessionController {
         return new LoginResponse(LoginStatus.LOGGED_IN);
     }
 
+    @GetMapping
+    public StatusResponse getStatus(@CookieValue(value = REFRESH_TOKEN_NAME, required = false) String jwt) {
+        if (jwt == null) {
+            return new StatusResponse(SessionStatus.LOGGED_OUT);
+        }
+
+        try {
+            Jwts.parser().setSigningKey(encodedKey).parseClaimsJws(jwt);
+        } catch (Exception e) {
+            return new StatusResponse(SessionStatus.LOGGED_OUT);
+        }
+
+        return new StatusResponse(SessionStatus.LOGGED_IN);
+    }
+
     @RequestMapping(method = RequestMethod.DELETE)
     public @ResponseStatus(HttpStatus.NO_CONTENT) void logout(HttpServletResponse response) {
         deleteCookie(REFRESH_TOKEN_NAME, response);
