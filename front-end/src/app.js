@@ -6,7 +6,7 @@ function checkToken() {
   const deferred = $.Deferred();
 
   if (app.token) {
-    deferred.resolve();
+    return deferred.resolve();
   }
 
   $.ajax("/api/session")
