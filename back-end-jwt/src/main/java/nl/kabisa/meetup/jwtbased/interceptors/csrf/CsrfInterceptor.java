@@ -20,13 +20,6 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
     @Value("${csrf.target}")
     private String target;
 
-    private void checkRequestedWithHeader(HttpServletRequest request) throws CsrfException {
-        String requestedWith = request.getHeader("X-Requested-With");
-        if (!"XMLHttpRequest".equalsIgnoreCase(requestedWith)) {
-            throw new CsrfException();
-        }
-    }
-
     private void checkOrigin(HttpServletRequest request) throws CsrfException {
         String origin = request.getHeader("Origin");
         if (StringUtils.isNotBlank(origin)) {
@@ -78,9 +71,7 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        checkRequestedWithHeader(request);
         checkOrigin(request);
-
         setCsrfTokens(response);
 
         return true;

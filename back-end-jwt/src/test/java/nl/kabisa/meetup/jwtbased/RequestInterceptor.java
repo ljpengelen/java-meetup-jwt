@@ -12,7 +12,6 @@ public class RequestInterceptor implements ClientHttpRequestInterceptor {
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        request.getHeaders().set("X-Requested-With", "XMLHttpRequest");
         request.getHeaders().set("Origin", "http://localhost:8000");
 
         request.getHeaders().set(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME, previousToken);
