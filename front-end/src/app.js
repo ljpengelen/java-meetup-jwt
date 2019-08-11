@@ -2,25 +2,39 @@ var app = app || {};
 
 const sync = Backbone.sync;
 
-Backbone.sync = function(method, model, options) {
-  console.log("BACKBOEN SYNC");
-  console.log(app.token);
+function checkToken() {
+  const deferred = $.Deferred();
 
-  _.extend(options, {
-    headers: {
-      "X-CSRF-TOKEN": app.token
-    }
-  });
+  if (app.token) {
+    deferred.resolve();
+  }
 
-  console.log(_)
-  console.log(options.headers);
-
-  sync(method, model, options)
+  $.ajax("/api/session")
     .done(function (data, textStatus, jqXHR) {
       app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
     }).fail(function (jqXHR) {
       app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
+    }).always(deferred.resolve);
+
+  return deferred.promise();
+}
+
+Backbone.sync = function(method, model, options) {
+  checkToken().then(function() {
+
+    _.extend(options, {
+      headers: {
+        "X-CSRF-TOKEN": app.token
+      }
     });
+
+    sync(method, model, options)
+      .done(function (data, textStatus, jqXHR) {
+        app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
+      }).fail(function (jqXHR) {
+        app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
+      });
+  });
 }
 
 app.App = {
