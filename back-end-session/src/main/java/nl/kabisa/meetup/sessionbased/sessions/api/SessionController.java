@@ -1,14 +1,15 @@
 package nl.kabisa.meetup.sessionbased.sessions.api;
 
-import nl.kabisa.meetup.sessionbased.accounts.repository.Account;
-import nl.kabisa.meetup.sessionbased.accounts.repository.AccountRepository;
+import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
+import nl.kabisa.meetup.sessionbased.accounts.repository.Account;
+import nl.kabisa.meetup.sessionbased.accounts.repository.AccountRepository;
 
 @RequestMapping("/session")
 @RestController
@@ -33,6 +34,15 @@ public class SessionController {
         session.setAttribute("accountId", account.getId());
 
         return new LoginResponse(LoginStatus.LOGGED_IN);
+    }
+
+    @GetMapping
+    public StatusResponse getStatus(HttpSession session) {
+        if (session.getAttribute("accountId") == null) {
+            return new StatusResponse(SessionStatus.LOGGED_OUT);
+        }
+
+        return new StatusResponse(SessionStatus.LOGGED_IN);
     }
 
     @RequestMapping(method = RequestMethod.DELETE)
