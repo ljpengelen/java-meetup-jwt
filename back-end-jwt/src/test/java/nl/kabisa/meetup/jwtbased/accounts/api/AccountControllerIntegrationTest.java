@@ -119,7 +119,7 @@ public class AccountControllerIntegrationTest extends IntegrationTest {
         testRestTemplate.postForEntity(getSessionUri(), new LoginRequest(USERNAME, PASSWORD), LoginResponse.class);
 
         ResponseEntity<SanitizedAccountDto> response = testRestTemplate
-                .exchange(getAccountUri(), HttpMethod.PUT, new HttpEntity<AccountDto>(new AccountDto(OTHER_USERNAME, PASSWORD)), SanitizedAccountDto.class);
+                .exchange(getAccountUri(), HttpMethod.PUT, new HttpEntity<>(new AccountDto(OTHER_USERNAME, PASSWORD)), SanitizedAccountDto.class);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 }
