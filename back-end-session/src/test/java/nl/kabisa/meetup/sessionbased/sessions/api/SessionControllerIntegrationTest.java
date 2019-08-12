@@ -49,8 +49,9 @@ public class SessionControllerIntegrationTest extends IntegrationTest {
     @DirtiesContext
     public void logoutWhileLoggedIn() {
         testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), AccountDto.class);
-        ResponseEntity<LoginResponse> loginResponse = testRestTemplate.postForEntity(getSessionUri(), new LoginRequest(USERNAME, PASSWORD), LoginResponse.class);
-        Assert.assertEquals(LoginStatus.LOGGED_IN, loginResponse.getBody().getStatus());
+        testRestTemplate.postForEntity(getSessionUri(), new LoginRequest(USERNAME, PASSWORD), LoginResponse.class);
+
+        testRestTemplate.delete(getSessionUri());
     }
 
     @Test
