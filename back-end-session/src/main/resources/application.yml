@@ -15,7 +15,7 @@ csrf:
 spring:
   profiles: test
   datasource:
-    url: "jdbc:h2:mem:testdb"
+    url: "jdbc:h2:mem:testdb;DB_CLOSE_ON_EXIT=FALSE"
   jpa:
     hibernate:
       ddl-auto: create-drop
