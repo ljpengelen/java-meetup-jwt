@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
 
 import nl.kabisa.meetup.jwtbased.IntegrationTest;
 import nl.kabisa.meetup.jwtbased.accounts.api.AccountDto;
@@ -30,7 +29,6 @@ public class AuthenticationIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @DirtiesContext
     public void validTokenPresent() {
         ResponseEntity<AccountDto> accountToCreate = testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), AccountDto.class);
         Assert.assertEquals(HttpStatus.OK, accountToCreate.getStatusCode());
