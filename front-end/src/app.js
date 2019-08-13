@@ -54,6 +54,7 @@ const logIn = () => {
         if (status.status == "INVALID_CREDENTIALS") {
           showFlashMessage("The credentials you provided are invalid", "danger");
         } else {
+          showFlashMessage("You've been logged in successfully", "success");
           setState({
             isLoggedIn: true,
             view: "UPDATE_ACCOUNT"
