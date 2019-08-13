@@ -1,9 +1,6 @@
+import { apiService } from "./services/apiService.js";
 import { html, render } from 'https://unpkg.com/lit-html@1.1.2?module';
 import { Page } from "./components/Page.js";
-
-const CSRF_HEADER_NAME = "X-CSRF-Token";
-
-let token;
 
 let state = {
   isLoggedIn: false,
@@ -52,33 +49,28 @@ const logIn = () => {
   } else if (!state.password || state.password.trim().length == 0) {
     showFlashMessage("Password may not be blank", "danger");
   } else {
-    fetch("/api/session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        [CSRF_HEADER_NAME]: token
-      },
-      body: JSON.stringify({
-        username: state.username,
-        password: state.password
-      })
-    })
-    .then(response => {
-      token = response.headers.get(CSRF_HEADER_NAME);
-      return response.json();
-    })
-    .then(status => {
-      if (status.status == "INVALID_CREDENTIALS") {
-        showFlashMessage("The credentials you provided are invalid", "danger");
-      } else {
-        setState({
-          isLoggedIn: true,
-          view: "UPDATE_ACCOUNT"
-        });
-      }
-    });
+    apiService.logIn(state.username, state.password)
+      .then(status => {
+        if (status.status == "INVALID_CREDENTIALS") {
+          showFlashMessage("The credentials you provided are invalid", "danger");
+        } else {
+          setState({
+            isLoggedIn: true,
+            view: "UPDATE_ACCOUNT"
+          });
+        }
+      });
   }
 }
+
+const logOut = () =>
+  apiService.logOut()
+    .then(() =>
+      setState({
+        isLoggedIn: false,
+        view: "LOG_IN"
+      })
+    );
 
 const createAccount = () => {
   if (!state.username || state.username.trim().length == 0) {
@@ -86,76 +78,26 @@ const createAccount = () => {
   } else if (!state.password || state.password.trim().length == 0) {
     showFlashMessage("Password may not be blank", "danger");
   } else {
-    fetch("/api/account", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-        [CSRF_HEADER_NAME]: token
-      },
-      body: JSON.stringify({
-        username: state.username,
-        password: state.password
-      })
-    })
-    .then(response => {
-      token = response.headers.get(CSRF_HEADER_NAME);
-      return response.json();
-    })
-    .then(() =>
-      setState({
-        view: "LOG_IN"
-      })
-    );
-  }
-}
-
-const updateAccount = () =>
-  fetch("/api/account", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      [CSRF_HEADER_NAME]: token
-    },
-    body: JSON.stringify({
-      username: state.username,
-      password: state.password
-    })
-  }).then(response => token = response.headers.get(CSRF_HEADER_NAME));
-
-const getAccount = () =>
-  fetch("/api/account", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      [CSRF_HEADER_NAME]: token
-    }
-  })
-  .then(response => {
-    token = response.headers.get(CSRF_HEADER_NAME);
-    return response.json();
-  })
-  .then(account =>
-    setState({
-      username: account.username
-    })
-  );
-
-const showLoginView = () => state.view = "LOG_IN";
-
-const logOut = () =>
-  fetch("/api/session", {method: "DELETE"})
-    .then(() =>
+    apiService.createAccount(state.username, state.password)
+      .then(() =>
         setState({
-          isLoggedIn: false,
           view: "LOG_IN"
         })
+      );
+  }
+};
+
+const updateAccount = () => apiService.updateAccount(state.username, state.password);
+
+const getAccount = () =>
+  apiService.getAccount()
+    .then(account =>
+      setState({
+        username: account.username
+      })
     );
 
-fetch("/api/session")
-  .then(response => {
-    token = response.headers.get(CSRF_HEADER_NAME);
-    return response.json();
-  })
+apiService.getSessionStatus()
   .then(status => {
     if (status.status == "LOGGED_IN") {
       setState({
