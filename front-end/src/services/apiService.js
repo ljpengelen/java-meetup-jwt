@@ -30,7 +30,13 @@ const updateAccount = (username, password) =>
       username,
       password
     })
-  }).then(response => token = response.headers.get(CSRF_HEADER_NAME));
+  })
+  .then(response => {
+    token = response.headers.get(CSRF_HEADER_NAME);
+    if (response.status == 400) {
+      throw new Error("This username is already taken");
+    }
+  });
 
 const logIn = (username, password) =>
   fetch("/api/session", {

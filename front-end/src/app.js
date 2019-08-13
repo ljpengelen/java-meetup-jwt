@@ -79,15 +79,26 @@ const createAccount = () => {
     showFlashMessage("Password may not be blank", "danger");
   } else {
     apiService.createAccount(state.username, state.password)
-      .then(() =>
+      .then(() => {
+        showFlashMessage("Account created successfully", "success");
         setState({
           view: "LOG_IN"
-        })
-      );
+        });
+      });
   }
 };
 
-const updateAccount = () => apiService.updateAccount(state.username, state.password);
+const updateAccount = () => {
+  if (!state.username || state.username.trim().length == 0) {
+    showFlashMessage("Username may not be blank", "danger");
+  } else if (!state.password || state.password.trim().length == 0) {
+    showFlashMessage("Password may not be blank", "danger");
+  } else {
+    apiService.updateAccount(state.username, state.password)
+      .then(() => showFlashMessage("Account updated successfully", "success"))
+      .catch(error => showFlashMessage(error.message, "danger"));
+  }
+}
 
 const getAccount = () =>
   apiService.getAccount()
