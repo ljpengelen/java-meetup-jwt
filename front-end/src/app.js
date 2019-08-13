@@ -1,91 +1,172 @@
-var app = app || {};
+import { html, render } from 'https://unpkg.com/lit-html@1.1.2?module';
+import { Page } from "./components/Page.js";
 
-const sync = Backbone.sync;
+const CSRF_HEADER_NAME = "X-CSRF-Token";
 
-function checkToken() {
-  const deferred = $.Deferred();
+let token;
 
-  if (app.token) {
-    return deferred.resolve();
-  }
-
-  $.ajax("/api/session")
-    .done(function (data, textStatus, jqXHR) {
-      app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
-    }).fail(function (jqXHR) {
-      app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
-    }).always(deferred.resolve);
-
-  return deferred.promise();
+let state = {
+  isLoggedIn: false,
+  view: "LOG_IN",
+  flash: {
+    message: null,
+    type: null
+  },
+  username: "",
+  password: ""
 }
 
-Backbone.sync = function(method, model, options) {
-  checkToken().then(function() {
+const setState = newState => {
+  state = {
+    ...state,
+    ...newState
+  };
 
-    _.extend(options, {
+  render(
+    Page({ state, setState, logIn, logOut, createAccount, updateAccount }),
+    document.body
+  );
+}
+
+const showFlashMessage = (message, type) => {
+  setState({
+    flash: {
+      message,
+      type
+    }
+  });
+  setTimeout(
+    () => setState({
+      flash: {
+        message: null,
+        type: null
+      }
+    }),
+    2000
+  );
+}
+
+const logIn = () => {
+  if (!state.username || state.username.trim().length == 0) {
+    showFlashMessage("Username may not be blank", "danger");
+  } else if (!state.password || state.password.trim().length == 0) {
+    showFlashMessage("Password may not be blank", "danger");
+  } else {
+    fetch("/api/session", {
+      method: "POST",
       headers: {
-        "X-CSRF-TOKEN": app.token
+        "Content-Type": "application/json; charset=utf-8",
+        [CSRF_HEADER_NAME]: token
+      },
+      body: JSON.stringify({
+        username: state.username,
+        password: state.password
+      })
+    })
+    .then(response => {
+      token = response.headers.get(CSRF_HEADER_NAME);
+      return response.json();
+    })
+    .then(status => {
+      if (status.status == "INVALID_CREDENTIALS") {
+        showFlashMessage("The credentials you provided are invalid", "danger");
+      } else {
+        setState({
+          isLoggedIn: true,
+          view: "UPDATE_ACCOUNT"
+        });
       }
     });
-
-    sync(method, model, options)
-      .done(function (data, textStatus, jqXHR) {
-        app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
-      }).fail(function (jqXHR) {
-        app.token = jqXHR.getResponseHeader("X-CSRF-TOKEN");
-      });
-  });
+  }
 }
 
-app.App = {
-  setup: function () {
-    this.router = new app.Router({
-      app: this
-    });
-
-    this.flashView = new app.FlashView();
-
-    this.navigationView = new app.NavigationView({
-      flashView: this.flashView,
-      router: this.router
-    });
-
-    this.account = new app.Account();
-    this.accountView = new app.AccountView({
-      model: this.account,
-      flashView: this.flashView,
-      router: this.router
-    });
-
-    this.credentials = new app.Credentials();
-    this.credentialsView = new app.CredentialsView({
-      model: this.credentials,
-      flashView: this.flashView,
-      router: this.router
-    });
-  },
-  createAccount: function () {
-    this.account.clear();
-    this.account.set({username: "", password: ""});
-
-    this.accountView.createAccount();
-    this.accountView.render();
-    this.credentialsView.$el.empty();
-    this.navigationView.enableLogin();
-  },
-  editAccount: function () {
-    this.flashView.show("", "");
-
-    this.accountView.editAccount();
-    this.accountView.render();
-    this.credentialsView.$el.empty();
-    this.navigationView.enableLogout();
-  },
-  loginForm: function () {
-    this.credentials.set({username: "", password: ""});
-
-    this.accountView.$el.empty();
-    this.credentialsView.render();
-    this.navigationView.enableLogin();
+const createAccount = () => {
+  if (!state.username || state.username.trim().length == 0) {
+    showFlashMessage("Username may not be blank", "danger");
+  } else if (!state.password || state.password.trim().length == 0) {
+    showFlashMessage("Password may not be blank", "danger");
+  } else {
+    fetch("/api/account", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        [CSRF_HEADER_NAME]: token
+      },
+      body: JSON.stringify({
+        username: state.username,
+        password: state.password
+      })
+    })
+    .then(response => {
+      token = response.headers.get(CSRF_HEADER_NAME);
+      return response.json();
+    })
+    .then(() =>
+      setState({
+        view: "LOG_IN"
+      })
+    );
   }
-};
+}
+
+const updateAccount = () =>
+  fetch("/api/account", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      [CSRF_HEADER_NAME]: token
+    },
+    body: JSON.stringify({
+      username: state.username,
+      password: state.password
+    })
+  }).then(response => token = response.headers.get(CSRF_HEADER_NAME));
+
+const getAccount = () =>
+  fetch("/api/account", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      [CSRF_HEADER_NAME]: token
+    }
+  })
+  .then(response => {
+    token = response.headers.get(CSRF_HEADER_NAME);
+    return response.json();
+  })
+  .then(account =>
+    setState({
+      username: account.username
+    })
+  );
+
+const showLoginView = () => state.view = "LOG_IN";
+
+const logOut = () =>
+  fetch("/api/session", {method: "DELETE"})
+    .then(() =>
+        setState({
+          isLoggedIn: false,
+          view: "LOG_IN"
+        })
+    );
+
+fetch("/api/session")
+  .then(response => {
+    token = response.headers.get(CSRF_HEADER_NAME);
+    return response.json();
+  })
+  .then(status => {
+    if (status.status == "LOGGED_IN") {
+      setState({
+        isLoggedIn: true,
+        view: "UPDATE_ACCOUNT"
+      });
+      getAccount();
+    } else {
+      setState({
+        isLoggedIn: false,
+        view: "LOG_IN"
+      });
+    }
+  });
