@@ -2,85 +2,49 @@ const CSRF_HEADER_NAME = "X-CSRF-Token";
 
 let token;
 
-const createAccount = (username, password) =>
-  fetch("/api/account", {
-    method: "POST",
+const jsonFetch = (url, method, body) =>
+  fetch(url, {
+    method,
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       [CSRF_HEADER_NAME]: token
     },
-    body: JSON.stringify({
-      username,
-      password
-    })
-  })
-  .then(response => {
+    body: JSON.stringify(body)
+  }).then(response => {
     token = response.headers.get(CSRF_HEADER_NAME);
-    return response.json();
-  })
+    return response;
+  });
+
+const createAccount = (username, password) =>
+  jsonFetch("/api/account", "POST", {
+    username,
+    password
+  }).then(response => response.json());
 
 const updateAccount = (username, password) =>
-  fetch("/api/account", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      [CSRF_HEADER_NAME]: token
-    },
-    body: JSON.stringify({
-      username,
-      password
-    })
+  jsonFetch("/api/account", "PUT", {
+    username,
+    password
   })
   .then(response => {
-    token = response.headers.get(CSRF_HEADER_NAME);
     if (response.status == 400) {
       throw new Error("This username is already taken");
     }
   });
 
 const logIn = (username, password) =>
-  fetch("/api/session", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      [CSRF_HEADER_NAME]: token
-    },
-    body: JSON.stringify({
-      username,
-      password
-    })
-  })
-  .then(response => {
-    token = response.headers.get(CSRF_HEADER_NAME);
-    return response.json();
-  });
+  jsonFetch("/api/session", "POST", {
+    username,
+    password
+  }).then(response => response.json());
 
-const logOut = () =>
-  fetch("/api/session", {method: "DELETE"})
-    .then(response => {
-      token = response.headers.get(CSRF_HEADER_NAME);
-      return;
-    });
+const logOut = () => jsonFetch("/api/session", "DELETE");
 
 const getSessionStatus = () =>
-  fetch("/api/session")
-    .then(response => {
-      token = response.headers.get(CSRF_HEADER_NAME);
-      return response.json();
-    });
+  jsonFetch("/api/session", "GET").then(response => response.json());
 
 const getAccount = () =>
-  fetch("/api/account", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      [CSRF_HEADER_NAME]: token
-    }
-  })
-  .then(response => {
-    token = response.headers.get(CSRF_HEADER_NAME);
-    return response.json();
-  });
+  jsonFetch("/api/account", "GET").then(response => response.json());
 
 export const apiService = {
   createAccount,
