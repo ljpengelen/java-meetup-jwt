@@ -12,6 +12,11 @@ const jsonFetch = (url, method, body) =>
     body: JSON.stringify(body)
   }).then(response => {
     token = response.headers.get(CSRF_HEADER_NAME);
+
+    if (response.status == 204) {
+      return {};
+    }
+
     return response.json();
   }).then(json => {
     if (json.error) {
