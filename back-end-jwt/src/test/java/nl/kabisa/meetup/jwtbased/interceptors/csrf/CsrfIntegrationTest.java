@@ -33,9 +33,8 @@ public class CsrfIntegrationTest {
     }
 
     @Test
-    public void requestedWithAndOrigin() {
+    public void originHeader() {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add("X-Requested-With", "XMLHttpRequest");
         headers.add("Origin", origin);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -44,9 +43,8 @@ public class CsrfIntegrationTest {
     }
 
     @Test
-    public void requestedWithAndReferer() {
+    public void refererHeader() {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add("X-Requested-With", "XMLHttpRequest");
         headers.add("Referer", origin);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -57,7 +55,6 @@ public class CsrfIntegrationTest {
     @Test
     public void allHeaders() {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add("X-Requested-With", "XMLHttpRequest");
         headers.add("Origin", origin);
         headers.add("Referer", origin);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
