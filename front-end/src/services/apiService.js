@@ -12,39 +12,38 @@ const jsonFetch = (url, method, body) =>
     body: JSON.stringify(body)
   }).then(response => {
     token = response.headers.get(CSRF_HEADER_NAME);
-    return response;
+    return response.json();
+  }).then(json => {
+    if (json.error) {
+      return Promise.reject(new Error(json.message));
+    }
+
+    return json;
   });
 
 const createAccount = (username, password) =>
   jsonFetch("/api/account", "POST", {
     username,
     password
-  }).then(response => response.json());
+  });
 
 const updateAccount = (username, password) =>
   jsonFetch("/api/account", "PUT", {
     username,
     password
-  })
-  .then(response => {
-    if (response.status == 400) {
-      throw new Error("This username is already taken");
-    }
   });
 
 const logIn = (username, password) =>
   jsonFetch("/api/session", "POST", {
     username,
     password
-  }).then(response => response.json());
+  });
 
 const logOut = () => jsonFetch("/api/session", "DELETE");
 
-const getSessionStatus = () =>
-  jsonFetch("/api/session", "GET").then(response => response.json());
+const getSessionStatus = () => jsonFetch("/api/session", "GET");
 
-const getAccount = () =>
-  jsonFetch("/api/account", "GET").then(response => response.json());
+const getAccount = () => jsonFetch("/api/account", "GET");
 
 export const apiService = {
   createAccount,
