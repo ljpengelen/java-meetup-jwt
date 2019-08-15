@@ -69,6 +69,51 @@ To assess the pros and cons of both approaches, we need to take a detour.
 
 ## CSRF and XSS
 
+The term cross-site request forgery (CSRF) is used for the situation where someone else's web application secretly lets its visitors perform actions with your web application due to cookies still present from previous visits.
+
+The following example (a modified version of one provided by [OWASP](https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF))) shows a form that tricks unsuspecting users into sending 10.000 euro (?) to my bank account at bank.com:
+
+```
+<form action="http://bank.com/transfer.do" method="POST">
+  <input type="hidden" name="account" value="LUC"/>
+  <input type="hidden" name="amount" value="100000"/>
+  <input type="submit" value="View my pictures"/>
+</form>
+```
+
+The term cross-site scripting (XSS) is used for the situation where someone is able to have their scripts executed as part of your web application.
+
+The following example (directly stolen from [OWASP](https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)) without any extra effort) shows part of a JSP template that allows anyone to execute code on the corresponding web page:
+
+```
+<% String eid = request.getParameter("eid"); %>
+	...
+	Employee ID: <%= eid %>
+```
+
+Imagine the nightmares you'll have after clicking http://example.com/employee.jsp?eid=alert%28%22you%20have%20been%20p0wned%22%29...
+
+## Cookie or header?
+
+If you put your JWTs in a cookie, you need to take precautions to combat CSRF.
+If you use secure, HTTP-only cookies, you don't need to worry about XSS, however, because scripts don't have access to the content of such cookies.
+There's no way someone can abuse XSS and take your JWT to impersonate you.
+
+If you put your JWTs in a header, you don't need to worry about CSRF.
+You do need to worry about XSS, however.
+If someone can abuse XSS to steal your JWT, this person is able to impersonate you.
+
+In my 2016 presentation, I stated that "defense against CSRF is straightforward and durable."
+This statement was based on advice offered by the [Open Web Application Security Project](https://www.owasp.org/) at that time.
+Years later, defense against CSRF is still durable, but a little less straightforward.
+We'll come back to that in a minute.
+
+XSS, on the other hand, is something you need to constantly keep in mind.
+Each template you add could open up possibilities for XSS.
+The same holds for all those NPM packages you add to your front-end project, either directly or indirectly.
+
+My conclusion from this is that JWTs belong in a secure, HTTP-only cookie, and should be used in combination with preventive measures against CSRF.
+
 ## Seeing is believing
 
 Because the proof of the pudding is in the eating, I wrote a simple front-end app and two back-end apps that demonstrate a session-based and JWT-based approach to authentication: https://github.com/ljpengelen/java-meetup-jwt
@@ -78,6 +123,28 @@ You can open the front end in your browser, create an account, log in, and then 
 
 In the case of the JWT-based back end, it doesn't matter which two instances you stop.
 In the case of the session-based back end, stopping the instance your connected to will terminate your session.
+
+These applications combat CSRF by checking the `Origin` and `Referer` headers, and by requiring that each request contains a valid CSRF token.
+Keeping track of the CSRF tokens in the front end is not completely straightforward, but it's an acceptable price to pay if you ask me.
+
+## Lifespan of a JWT
+
+What happens to already issued JWTs when you change your credentials?
+What happens to already issued JWTs when you delete your account?
+In both scenarios, existing JWTs will remain valid.
+Without additional measures, JWTs remain valid until they expire or until the secret on the server is changed.
+If someone get's their hands on a token, it can be abused until it expires.
+
+When should a JWT expire?
+They should expire as soon as possible, to prevent misuse for long periods.
+On the other hand, they should expire as late as possible, so that users don't have to re-authenticate all the time.
+
+In practice, two types of tokens are used together, to achieve the best of both worlds.
+A short-lived *access* token is used for authentication per request.
+A long-lived *refresh* token is used to generate new access token when needed.
+
+Each time the refresh token is used to obtain a new access token, some additional checks could be made to enhance security.
+The refresh token can be used in combination with a blacklist, for example, to invalidate tokens that were issued for a particular user before a given point in time.
 
 ## Conclusion
 
