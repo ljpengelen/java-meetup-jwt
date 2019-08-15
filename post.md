@@ -3,6 +3,7 @@
 A few years ago, I gave a talk about JSON Web Tokens (JWTs) during a Meetup for Java enthusiasts in Eindhoven.
 Triggered by a talk about JWTs I attended recently, I decided to dust of my presentation and the demo applications I made back then to see whether they still hold up.
 It turns out that life is a little harder in 2019 than it was in 2016, at least as far as security and JWTs are concerned.
+Before we go into the details of this opinion, we should first discuss the basics.
 
 ## JSON Web Tokens
 
