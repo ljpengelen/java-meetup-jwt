@@ -22,8 +22,8 @@ If you decode the ones above, you end up with the following:
 
 ```
 {
-  "sub": "1",
-  "admin": false
+  "exp": 1476290149,
+  "sub":"1"
 }
 ```
 
