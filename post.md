@@ -36,6 +36,13 @@ HMACSHA256(
 ```
 
 The first part is the header, the second is the payload, and the third is the signature.
+Anyone that gets their hands on this token can decode the strings.
+(Execute `atob("eyJhbGciOiJIUzUxMiJ9")` in the console of your browser if you want to see for yourself.)
+This means that anyone who gets their hands on the token can use the encoded information.
+Because only the server knows the secret that was used to compute the signature from the header and body, however, only the server can check the validity of a token by recomputing its expected signature and comparing it with the actual signature.
+
+
+
 
 So, where do you put JWTs in 2019 if you want to use them to authenticate requests from your front end to your back end?
 Should you send them along in a header or in cookie?
