@@ -82,4 +82,4 @@ In the case of the session-based back end, stopping the instance your connected 
 ## Conclusion
 
 I am not an expert on this subject, and I must stress that you shouldn't mistake my advice for the absolute truth on this subject.
-Instead, I hope this post allows you to follow my reasoning and make informed decisions when you have to choose between different forms of authentication.
+Instead, I hope this post allows you to follow my reasoning and helps you make informed decisions when you have to choose between different forms of authentication.
