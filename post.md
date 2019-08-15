@@ -7,6 +7,7 @@ Before we go into the details of this opinion, we should first discuss the basic
 
 ## JSON Web Tokens
 
+Essentially, a JSON Web Token is something that a server application would give to a client application, which the client would then use to authenticate itself with the server when doing requests.
 A JSON Web Token will look something like this:
 
 **<span style="color: red">eyJhbGciOiJIUzUxMiJ9</span>.<span style="color: fuchsia">eyJleHAiOjE0NzYyOTAxNDksInN1YiI6IjEifQ</span>.<span style="color: blue">mvJEWu3kxm0WSUKu-qEVTBmuelM-2Te-VJHEFclVt_uR89ya0hNawkrgftQbAd-28lycLX2jXCgOGrA3XRg9Jg</span>**
