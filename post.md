@@ -133,7 +133,7 @@ What happens to already issued JWTs when you change your credentials?
 What happens to already issued JWTs when you delete your account?
 In both scenarios, existing JWTs will remain valid.
 Without additional measures, JWTs remain valid until they expire or until the secret on the server is changed.
-If someone get's their hands on a token, it can be abused until it expires.
+If someone gets their hands on a token, it can be abused until it expires.
 
 When should a JWT expire?
 They should expire as soon as possible, to prevent misuse for long periods.
