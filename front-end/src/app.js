@@ -60,7 +60,7 @@ const logIn = () => {
             view: "UPDATE_ACCOUNT"
           });
         }
-      });
+      }).catch(error => showFlashMessage(error.message, "danger"));
   }
 }
 
@@ -71,7 +71,7 @@ const logOut = () =>
         isLoggedIn: false,
         view: "LOG_IN"
       })
-    );
+    ).catch(error => showFlashMessage(error.message, "danger"));
 
 const createAccount = () => {
   if (!state.username || state.username.trim().length == 0) {
@@ -85,7 +85,7 @@ const createAccount = () => {
         setState({
           view: "LOG_IN"
         });
-      });
+      }).catch(error => showFlashMessage(error.message, "danger"));
   }
 };
 
@@ -107,7 +107,7 @@ const getAccount = () =>
       setState({
         username: account.username
       })
-    );
+    ).catch(error => showFlashMessage(error.message, "danger"));
 
 apiService.getSessionStatus()
   .then(status => {
@@ -123,4 +123,4 @@ apiService.getSessionStatus()
         view: "LOG_IN"
       });
     }
-  });
+  }).catch(error => showFlashMessage(error.message, "danger"));
