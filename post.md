@@ -12,7 +12,7 @@ A JSON Web Token will look something like this:
 
 **<span style="color: red">eyJhbGciOiJIUzUxMiJ9</span>.<span style="color: fuchsia">eyJleHAiOjE0NzYyOTAxNDksInN1YiI6IjEifQ</span>.<span style="color: blue">mvJEWu3kxm0WSUKu-qEVTBmuelM-2Te-VJHEFclVt_uR89ya0hNawkrgftQbAd-28lycLX2jXCgOGrA3XRg9Jg</span>**
 
-If you look closely, you'll see that these are three base64-encoded strings, joined by periods.
+If you look closely, you'll see that it consists of three base64-encoded strings, joined by periods.
 If you decode the ones above, you end up with the following:
 
 ```
