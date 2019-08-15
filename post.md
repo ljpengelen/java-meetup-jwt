@@ -67,9 +67,9 @@ It's much easier to follow conventions and put them in a header, and there's no 
 In the case of communication between client applications running in a browser and back-end applications, the answer is less clear.
 To assess the pros and cons of both approaches, we need to take a detour.
 
-# CSRF and XSS
+## CSRF and XSS
 
-# Seeing is believing
+## Seeing is believing
 
 Because the proof of the pudding is in the eating, I wrote a simple front-end app and two back-end apps that demonstrate a session-based and JWT-based approach to authentication: https://github.com/ljpengelen/java-meetup-jwt
 
@@ -79,7 +79,7 @@ You can open the front end in your browser, create an account, log in, and then 
 In the case of the JWT-based back end, it doesn't matter which two instances you stop.
 In the case of the session-based back end, stopping the instance your connected to will terminate your session.
 
-# Conclusion
+## Conclusion
 
 I am not an expert on this subject, and I must stress that you shouldn't mistake my advice for the absolute truth on this subject.
 Instead, I hope this post allows you to follow my reasoning and make informed decisions when you have to choose between different forms of authentication.
