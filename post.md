@@ -151,7 +151,7 @@ Without additional measures, JWTs remain valid until they expire or until the se
 If someone gets their hands on a token, it can be abused until it expires.
 
 When should a JWT expire?
-They should expire as soon as possible, to prevent misuse for long periods.
+On one hand, they should expire as soon as possible, to prevent misuse for long periods.
 On the other hand, they should expire as late as possible, so that users don't have to re-authenticate all the time.
 
 In practice, two types of tokens are used together, to achieve the best of both worlds.
