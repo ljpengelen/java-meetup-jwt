@@ -43,6 +43,15 @@ This means that anyone who gets their hands on the token can use the encoded inf
 Because only the server knows the secret that was used to compute the signature from the header and body, however, only the server can check the validity of a token by recomputing its expected signature and comparing it with the actual signature.
 Once the server has determined that a given JWT is valid, it knows that it issued the token itself, and that the data in the body can be trusted.
 
+The header specifies which algorithm was used to compute the signature.
+In this case, that's the HMAC-SHA512 algorithm.
+
+The payload can contain any number of claims.
+In this example, the standard claims `exp` and `sub` are used.
+The claim `exp` (short for "expiration time") specifies when the token expires.
+The claim `sub` (short for "subject") specifies the subject of the token, usually something like a user of your app, denoted by an identifier.
+There are a number of other standard claims, and you're free to add claims of your own.
+
 ## A trip down memory lane
 
 When I first read about JWTs, I was still used to working in an environment where deployments lead to downtime and were something that you'd do very early in the morning, so that they would impact as little end users as possible.
