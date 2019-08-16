@@ -144,11 +144,12 @@ Keeping track of the CSRF tokens in the front end is not completely straightforw
 
 ## Lifespan of a JWT
 
-What happens to already issued JWTs when you change your credentials?
+Think about the following for a second: What happens to already issued JWTs when you change your credentials?
 What happens to already issued JWTs when you delete your account?
 In both scenarios, existing JWTs will remain valid.
 Without additional measures, JWTs remain valid until they expire or until the secret on the server is changed.
 If someone gets their hands on a token, it can be abused until it expires.
+If you want to invalidate a single token by changing the secret on the server, you invalidate all tokens.
 
 When should a JWT expire?
 On one hand, they should expire as soon as possible, to prevent misuse for long periods.
