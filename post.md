@@ -113,7 +113,7 @@ You do need to worry about XSS, however.
 If someone can abuse XSS to steal your JWT, this person is able to impersonate you.
 
 In my 2016 presentation, I stated that "defense against CSRF is straightforward and durable."
-This statement was based on advice offered by the [Open Web Application Security Project](https://www.owasp.org/) at that time.
+This statement was based on advice offered by the [Open Web Application Security Project (OWASP)](https://www.owasp.org/) at that time.
 Years later, defense against CSRF is still durable, but a little less straightforward.
 We'll come back to that in a minute.
 
