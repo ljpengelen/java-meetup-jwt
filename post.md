@@ -74,7 +74,8 @@ Should they be sent along with requests in a header or should they be kept in a 
 In the case of communication between back-end applications, the answer is clear.
 It's much easier to follow conventions and put them in a header, and there's no benefit to putting them in cookies instead.
 In the case of communication between client applications running in a browser and back-end applications, the answer is less clear.
-To assess the pros and cons of both approaches, we need to take a detour.
+I remember frantically Googling for best practices while preparing for my presentation and being confronted with all sorts of contradictory claims and advice.
+Before we can discuss the conclusion I reached back then, we need to take a detour.
 
 ## CSRF and XSS
 
