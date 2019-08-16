@@ -29,7 +29,7 @@ If you decode the ones above, you end up with the following:
 ```
 
 ```
-HMACSHA256(
+HMACSHA512(
   base64UrlEncode(header) + "." +
   base64UrlEncode(payload),
   secret
