@@ -118,7 +118,7 @@ My conclusion from this is that JWTs belong in a secure, HTTP-only cookie, and s
 
 Because the proof of the pudding is in the eating, I wrote a simple front-end app and two back-end apps that demonstrate a session-based and JWT-based approach to authentication: https://github.com/ljpengelen/java-meetup-jwt
 
-With a simple `docker-compose` command you can start three instances of either of the two back ends, a database, and an instance of nginx that serves the front end and acts as load balancer.
+With a simple `docker-compose` command, you can start three instances of either of the two back ends, a database, and an instance of nginx that serves the front end and acts as load balancer.
 You can open the front end in your browser, create an account, log in, and then stop some of the back-end instances with `docker stop`.
 
 In the case of the JWT-based back end, it doesn't matter which two instances you stop.
