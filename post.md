@@ -168,4 +168,4 @@ I am not a security expert, and I must stress that you shouldn't mistake my advi
 Instead, I hope this post allows you to follow my reasoning and helps you make informed decisions when you have to choose between different forms of authentication.
 
 I'm well aware that the contradictory advice I encountered years ago is still out there, and that most people put their JWTs in a header.
-I guess those people are more scared about CSRF and that I'm more afraid of XSS.
+I guess those people are more scared of CSRF and that I'm more afraid of XSS.
