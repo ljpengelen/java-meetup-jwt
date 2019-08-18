@@ -25,8 +25,11 @@ pipeline {
           def app = docker.build("jwt-based-app", "-f back-end-jwt/dockerfiles/ci/Dockerfile .")
 
           withDockerNetwork{ n ->
-            database.withRun("--network ${n} --name java-meetup-postgres") { c ->
-              app.inside("--network ${n} -e 'SPRING_DATASOURCE_URL=jdbc:postgresql://java-meetup-postgres:5432/java_meetup'") {
+            database.withRun("--network ${n} --name database") { c ->
+              app.inside("""
+                --network ${n}
+                -e 'SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/java_meetup_test'
+              """) {
                 dir("back-end-jwt") {
                   sh "mvn verify"
                 }
@@ -46,8 +49,11 @@ pipeline {
           def app = docker.build("session-based-app", "-f back-end-session/dockerfiles/ci/Dockerfile .")
 
           withDockerNetwork{ n ->
-            database.withRun("--network ${n} --name java-meetup-postgres") { c ->
-              app.inside("--network ${n} -e 'SPRING_DATASOURCE_URL=jdbc:postgresql://java-meetup-postgres:5432/java_meetup'") {
+            database.withRun("--network ${n} --name database") { c ->
+              app.inside("""
+                --network ${n}
+                -e 'SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/java_meetup_test'
+              """) {
                 dir("back-end-session") {
                   sh "mvn verify"
                 }
