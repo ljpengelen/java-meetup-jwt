@@ -1,8 +1,8 @@
 FROM nginx
 
-ADD dockerfiles/jwt/nginx.conf /etc/nginx/
+COPY dockerfiles/jwt/nginx.conf /etc/nginx/
 
-ADD src /usr/share/nginx/html
+COPY src /usr/share/nginx/html
 
 EXPOSE 8000
 

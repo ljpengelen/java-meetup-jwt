@@ -1,8 +1,8 @@
 FROM nginx
 
-ADD dockerfiles/session/nginx.conf /etc/nginx/
+COPY dockerfiles/session/nginx.conf /etc/nginx/
 
-ADD src /usr/share/nginx/html
+COPY src /usr/share/nginx/html
 
 EXPOSE 8000
 
