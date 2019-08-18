@@ -16,6 +16,7 @@ services:
   back-end-one:
     build:
       context: ./back-end-jwt
+      dockerfile: dockerfiles/deploy/Dockerfile
     image: java-meetup-back-end-jwt
     container_name: java-meetup-back-end-jwt-one
     restart: always
@@ -24,6 +25,7 @@ services:
   back-end-two:
     build:
       context: ./back-end-jwt
+      dockerfile: dockerfiles/deploy/Dockerfile
     image: java-meetup-back-end-jwt
     container_name: java-meetup-back-end-jwt-two
     restart: always
@@ -32,6 +34,7 @@ services:
   back-end-three:
     build:
       context: ./back-end-jwt
+      dockerfile: dockerfiles/deploy/Dockerfile
     image: java-meetup-back-end-jwt
     container_name: java-meetup-back-end-jwt-three
     restart: always

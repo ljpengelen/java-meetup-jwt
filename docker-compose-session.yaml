@@ -16,6 +16,7 @@ services:
   back-end-one:
     build:
       context: ./back-end-session
+      dockerfile: dockerfiles/deploy/Dockerfile
     image: java-meetup-back-end-session
     container_name: java-meetup-back-end-session-one
     restart: always
@@ -24,6 +25,7 @@ services:
   back-end-two:
     build:
       context: ./back-end-session
+      dockerfile: dockerfiles/deploy/Dockerfile
     image: java-meetup-back-end-session
     container_name: java-meetup-back-end-session-two
     restart: always
@@ -32,6 +34,7 @@ services:
   back-end-three:
     build:
       context: ./back-end-session
+      dockerfile: dockerfiles/deploy/Dockerfile
     image: java-meetup-back-end-session
     container_name: java-meetup-back-end-session-three
     restart: always

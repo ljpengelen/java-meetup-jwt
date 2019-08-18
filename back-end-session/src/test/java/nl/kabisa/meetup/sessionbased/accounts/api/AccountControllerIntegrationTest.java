@@ -3,7 +3,6 @@ package nl.kabisa.meetup.sessionbased.accounts.api;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.*;
-import org.springframework.test.annotation.DirtiesContext;
 
 import nl.kabisa.meetup.sessionbased.IntegrationTest;
 import nl.kabisa.meetup.sessionbased.sessions.api.*;
@@ -16,7 +15,6 @@ public class AccountControllerIntegrationTest extends IntegrationTest {
     private static final String OTHER_PASSWORD = "new password";
 
     @Test
-    @DirtiesContext
     public void createValidAccount() {
         ResponseEntity<SanitizedAccountDto> account = testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), SanitizedAccountDto.class);
         Assert.assertEquals(HttpStatus.OK, account.getStatusCode());
@@ -43,7 +41,6 @@ public class AccountControllerIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @DirtiesContext
     public void createDuplicateAccount() {
         ResponseEntity<SanitizedAccountDto> firstAccount = testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), SanitizedAccountDto.class);
         ResponseEntity<SanitizedAccountDto> secondAccount = testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), SanitizedAccountDto.class);
@@ -52,7 +49,6 @@ public class AccountControllerIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @DirtiesContext
     public void getAccount() {
         ResponseEntity<SanitizedAccountDto> accountToCreate = testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), SanitizedAccountDto.class);
         Assert.assertEquals(HttpStatus.OK, accountToCreate.getStatusCode());
@@ -67,7 +63,6 @@ public class AccountControllerIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @DirtiesContext
     public void deleteAccount() {
         ResponseEntity<AccountDto> accountToCreate = testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), AccountDto.class);
         Assert.assertEquals(HttpStatus.OK, accountToCreate.getStatusCode());
@@ -79,7 +74,6 @@ public class AccountControllerIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @DirtiesContext
     public void updateAccountWithValidUsername() {
         ResponseEntity<SanitizedAccountDto> accountToCreate = testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), SanitizedAccountDto.class);
         Assert.assertEquals(HttpStatus.OK, accountToCreate.getStatusCode());
@@ -95,7 +89,6 @@ public class AccountControllerIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @DirtiesContext
     public void onlyUpdatePassword() {
         ResponseEntity<SanitizedAccountDto> accountToCreate = testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), SanitizedAccountDto.class);
         Assert.assertEquals(HttpStatus.OK, accountToCreate.getStatusCode());
@@ -111,7 +104,6 @@ public class AccountControllerIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @DirtiesContext
     public void updateAccountWithExistingUsername() {
         testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), SanitizedAccountDto.class);
         testRestTemplate.postForEntity(getAccountUri(), new AccountDto(OTHER_USERNAME, PASSWORD), SanitizedAccountDto.class);

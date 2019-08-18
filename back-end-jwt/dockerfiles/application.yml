@@ -1,0 +1,5 @@
+---
+
+spring:
+  datasource:
+    url: jdbc:postgresql://java-meetup-postgres:5432/java_meetup

@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
 
 import nl.kabisa.meetup.sessionbased.IntegrationTest;
 import nl.kabisa.meetup.sessionbased.accounts.api.AccountDto;
@@ -22,7 +21,6 @@ public class SessionControllerIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @DirtiesContext
     public void loginWithValidCredentials() {
         testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), AccountDto.class);
         ResponseEntity<LoginResponse> response = testRestTemplate.postForEntity(getSessionUri(), new LoginRequest(USERNAME, PASSWORD), LoginResponse.class);
@@ -37,7 +35,6 @@ public class SessionControllerIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @DirtiesContext
     public void loginWithInvalidPassword() {
         testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), AccountDto.class);
         ResponseEntity<LoginResponse> response = testRestTemplate.postForEntity(getSessionUri(), new LoginRequest(USERNAME, "wrong password"), LoginResponse.class);
@@ -46,7 +43,6 @@ public class SessionControllerIntegrationTest extends IntegrationTest {
     }
 
     @Test
-    @DirtiesContext
     public void logoutWhileLoggedIn() {
         testRestTemplate.postForEntity(getAccountUri(), new AccountDto(USERNAME, PASSWORD), AccountDto.class);
         testRestTemplate.postForEntity(getSessionUri(), new LoginRequest(USERNAME, PASSWORD), LoginResponse.class);

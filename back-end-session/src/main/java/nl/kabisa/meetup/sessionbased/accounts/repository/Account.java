@@ -1,15 +1,15 @@
 package nl.kabisa.meetup.sessionbased.accounts.repository;
 
+import javax.persistence.*;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.validator.constraints.NotBlank;
-
-import javax.persistence.*;
 
 @Entity
 public class Account {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotBlank
@@ -19,7 +19,8 @@ public class Account {
     @NotBlank
     private String password;
 
-    protected Account() {}
+    protected Account() {
+    }
 
     public Account(String username, String password) {
         this.username = username;
