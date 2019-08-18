@@ -22,7 +22,7 @@ EXPOSE 3002
 
 COPY --from=COMPILATION_STAGE /app/target/*.jar app.jar
 
-COPY docker/application.yml application.yml
+COPY dockerfiles/application.yml application.yml
 
 USER appuser
 
