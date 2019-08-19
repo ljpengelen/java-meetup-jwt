@@ -67,7 +67,7 @@ This last step is specific to Spring.
 You'll probably need to do something completely different for your own use case.
 
 Once both containers are running, the tests for the app are executed by the step `sh "mvn verify"`.
-This step is specific to Java and Maven and is unrelated to running containers in parallel.
+This step is specific to Java and Maven and is again unrelated to running containers in parallel.
 
 If you want to see this in action, take a look at https://github.com/ljpengelen/java-meetup-jwt.
 The example above is a simplified version of the Jenkinsfile used for this project.
