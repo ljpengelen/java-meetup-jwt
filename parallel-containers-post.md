@@ -7,7 +7,7 @@ I wrote this post to allow you and my future self to copy-paste some useful snip
 
 Suppose you have a Java app that requires a PostgreSQL database.
 If you want to run a few integration tests for that app, you'll probably need this database to be accessible as well.
-To make it possible for Jenkins to run these integration tests for you, you could just install PostgreSQL, create the necessary databases and users, and call it a day.
+To make it possible for Jenkins to run these integration tests for you, you could just install PostgreSQL on the machine running Jenkins, create the necessary databases and users, and call it a day.
 However, I'd rather keep each app in its own Docker container and only have apps running when they're needed.
 
 Consider the following Jenkinsfile:
