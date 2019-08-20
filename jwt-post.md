@@ -174,6 +174,23 @@ A long-lived *refresh* token is used to generate new access token when needed.
 Each time the refresh token is used to obtain a new access token, some additional checks could be made to enhance security.
 The refresh token can be used in combination with a blacklist, for example, to invalidate tokens that were issued for a particular user before a given point in time.
 
+## What kind of abuse is this protecting you from?
+
+Because the JWTs are stored in secure, HTTP-only cookies, it is implausible that someone would be able to access the JWTs themselves.
+An attacker would, for example, need access to a victim's computer to read the values of these cookies.
+The blacklist mentioned above could be used to invalidate JWTs comprised like this.
+However, if someone is able to access cookies directly from your computer, you have bigger problems to worry about that lie beyond the responsibility of an app developer.
+Moreover, there's no reasonable defense against someone willing to turn your life into a Quentin Tarantino movie to access your data or credentials.
+
+Other scenarios in which an attacker would be able to read the values of the JWTs would be when the attacker is able to intercept traffic between client and server or when an attacker would have access to the server.
+In such scenarios, all that can be done is patch up the security holes and change the secret key used to sign JWTs.
+Protection against these types of attacks cannot be implemented on the application level.
+
+In short, your JWTs are reasonably safe from harm in their cookies.
+More realistically, however, it could happen that you inadvertently introduce an XSS vulnerability in your app.
+This could enable an attacker to access the value of the CSRF token, and use it in a CSRF attack.
+Also in this scenario, all you can do is change the secret to invalidate all tokens after patching the vulnerability.
+
 ## Conclusion
 
 I am not a security expert, and I must stress that you shouldn't mistake my advice for the absolute truth on this subject.
