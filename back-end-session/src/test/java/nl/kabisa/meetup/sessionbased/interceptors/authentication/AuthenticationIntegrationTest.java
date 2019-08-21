@@ -15,7 +15,15 @@ public class AuthenticationIntegrationTest extends IntegrationTest {
     private static final String PASSWORD = "password";
 
     @Test
+    public void missingValidCsrfToken() {
+        ResponseEntity<AccountDto> response = testRestTemplate.getForEntity(getAccountUri(), AccountDto.class);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+    }
+
+    @Test
     public void missingRequiredSession() {
+        testRestTemplate.getForEntity(getSessionUri(), StatusResponse.class);
+
         ResponseEntity<AccountDto> response = testRestTemplate.getForEntity(getAccountUri(), AccountDto.class);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }

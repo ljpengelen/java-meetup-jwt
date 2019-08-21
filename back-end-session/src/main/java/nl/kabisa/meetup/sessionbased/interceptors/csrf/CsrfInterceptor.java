@@ -15,7 +15,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 public class CsrfInterceptor extends HandlerInterceptorAdapter {
 
     public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-Token";
-    public static final String CSRF_TOKEN_COOKIE_NAME = "csrf-token";
+    public static final String CSRF_TOKEN_ATTRIBUTE = "csrfToken";
 
     @Value("${csrf.target}")
     private String target;
@@ -59,20 +59,18 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
         return randomDataGenerator.nextSecureHexString(24);
     }
 
-    private void setCsrfTokens(HttpServletResponse response) {
+    private void setCsrfTokens(HttpServletRequest request, HttpServletResponse response) {
         String token = generateToken();
         response.addHeader(CSRF_TOKEN_HEADER_NAME, token);
 
-        Cookie cookie = new Cookie(CSRF_TOKEN_COOKIE_NAME, token);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        HttpSession session = request.getSession();
+        session.setAttribute(CSRF_TOKEN_ATTRIBUTE, token);
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         checkOrigin(request);
-        setCsrfTokens(response);
+        setCsrfTokens(request, response);
 
         return true;
     }

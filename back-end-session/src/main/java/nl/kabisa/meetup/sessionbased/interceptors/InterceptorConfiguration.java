@@ -23,9 +23,9 @@ public class InterceptorConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authenticationInterceptor).excludePathPatterns("/error");
         if (enableCsrfCheck) {
             registry.addInterceptor(csrfInterceptor).excludePathPatterns("/error");
         }
-        registry.addInterceptor(authenticationInterceptor).excludePathPatterns("/error");
     }
 }
