@@ -8,7 +8,8 @@ import org.springframework.http.client.*;
 import nl.kabisa.meetup.jwtbased.interceptors.csrf.CsrfInterceptor;
 
 public class RequestInterceptor implements ClientHttpRequestInterceptor {
-    String previousToken;
+
+    private String previousToken;
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
