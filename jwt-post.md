@@ -154,6 +154,11 @@ Otherwise, it's denied.
 Keeping track of the CSRF tokens in the front end is not completely straightforward.
 It takes a little effort to keep track of the latest token value and forward it with each request, but that's an acceptable price to pay if you ask me.
 
+For the JWT-based back end, both measures above come from the section of the [OWASP cheat sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) describing measures for defense in depth.
+The second measure is known as the double-submit cookie technique.
+To mitigate the known issues of this technique, a signature is sent along with the CSRF token in the cookie.
+This makes it possible for the back-end application to verify that it produced the token itself.
+
 ## Lifespan of a JWT
 
 Think about the following for a second: What happens to already issued JWTs when you change your credentials?
