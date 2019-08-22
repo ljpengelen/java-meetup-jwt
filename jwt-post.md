@@ -189,6 +189,7 @@ Moreover, there's no reasonable defense against someone willing to turn your lif
 
 Other scenarios in which an attacker would be able to read the values of the JWTs would be when the attacker is able to intercept traffic between client and server or when an attacker would have access to the server.
 In such scenarios, all that can be done is patch up the security holes and change the secret key used to sign JWTs.
+The latter is the easiest way of invalidating all JWTs that have been issued before.
 Protection against these types of attacks cannot be implemented on the application level.
 
 In short, your JWTs are reasonably safe from harm in their cookies.
