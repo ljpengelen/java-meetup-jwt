@@ -20,6 +20,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import nl.kabisa.meetup.jwtbased.accounts.repository.Account;
 import nl.kabisa.meetup.jwtbased.accounts.repository.AccountRepository;
+import nl.kabisa.meetup.jwtbased.interceptors.csrf.RequiresValidCsrfToken;
 
 @RequestMapping("/session")
 @RestController
@@ -36,6 +37,7 @@ public class SessionController {
     @Autowired
     AccountRepository accountRepository;
 
+    @RequiresValidCsrfToken
     @RequestMapping(method = RequestMethod.POST)
     public LoginResponse login(@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
         Account account = accountRepository.findByUsername(request.getUsername());
@@ -76,6 +78,7 @@ public class SessionController {
         return new StatusResponse(SessionStatus.LOGGED_IN);
     }
 
+    @RequiresValidCsrfToken
     @RequestMapping(method = RequestMethod.DELETE)
     public @ResponseStatus(HttpStatus.NO_CONTENT) void logout(HttpServletResponse response) {
         deleteCookie(REFRESH_TOKEN_NAME, response);

@@ -15,8 +15,6 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.util.WebUtils;
 
 import io.jsonwebtoken.*;
-import nl.kabisa.meetup.jwtbased.interceptors.csrf.CsrfException;
-import nl.kabisa.meetup.jwtbased.interceptors.csrf.CsrfInterceptor;
 
 @Component
 public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
@@ -97,26 +95,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
         return false;
     }
 
-    private boolean hasValidCsrfToken(HttpServletRequest request) {
-        Cookie csrfCookie = WebUtils.getCookie(request, CsrfInterceptor.CSRF_TOKEN_COOKIE_NAME);
-        if (csrfCookie == null) {
-            return false;
-        }
-
-        String csrfCookieValue = csrfCookie.getValue();
-        String csrfHeaderValue = request.getHeader(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME);
-        if (csrfCookieValue.equals(csrfHeaderValue)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private void validateTokens(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, CsrfException {
-        if (!hasValidCsrfToken(request)) {
-            throw new CsrfException();
-        }
-
+    private void validateTokens(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         if (hasValidAccessToken(request)) {
             return;
         }
@@ -142,7 +121,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
-            if (handlerMethod.hasMethodAnnotation(RequireValidToken.class)) {
+            if (handlerMethod.hasMethodAnnotation(RequiresValidJwt.class)) {
                 validateTokens(request, response);
             }
         }

@@ -16,6 +16,8 @@ public class AuthenticationIntegrationTest extends IntegrationTest {
 
     @Test
     public void missingRequiredSession() {
+        testRestTemplate.getForEntity(getSessionUri(), StatusResponse.class);
+
         ResponseEntity<AccountDto> response = testRestTemplate.getForEntity(getAccountUri(), AccountDto.class);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }

@@ -9,48 +9,44 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+
+import nl.kabisa.meetup.sessionbased.interceptors.authentication.RequiresSession;
 
 @Component
 public class CsrfInterceptor extends HandlerInterceptorAdapter {
 
     public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-Token";
-    public static final String CSRF_TOKEN_COOKIE_NAME = "csrf-token";
+    public static final String CSRF_TOKEN_ATTRIBUTE = "csrfToken";
 
     @Value("${csrf.target}")
     private String target;
 
-    private void checkOrigin(HttpServletRequest request) throws CsrfException {
+    private boolean hasValidOriginOrReferer(HttpServletRequest request) {
         String origin = request.getHeader("Origin");
         if (StringUtils.isNotBlank(origin)) {
-            compareWithTarget(origin);
-            return;
+            return matchesTarget(origin);
         }
 
         String referer = request.getHeader("Referer");
         if (StringUtils.isNotBlank(referer)) {
-            compareWithTarget(referer);
-            return;
+            return matchesTarget(referer);
         }
 
-        throw new CsrfException();
+        return false;
     }
 
-    private void compareWithTarget(String origin) throws CsrfException {
+    private boolean matchesTarget(String headerValue) {
         try {
             URL targetUrl = new URL(target);
-            URL originUrl = new URL(origin);
+            URL headerUrl = new URL(headerValue);
 
-            boolean matches = true;
-            matches &= originUrl.getPort() == targetUrl.getPort();
-            matches &= originUrl.getHost().equalsIgnoreCase(targetUrl.getHost());
-            matches &= originUrl.getProtocol().equalsIgnoreCase(targetUrl.getProtocol());
-
-            if (!matches) {
-                throw new CsrfException();
-            }
+            return headerUrl.getPort() == targetUrl.getPort() &&
+                   headerUrl.getHost().equalsIgnoreCase(targetUrl.getHost()) &&
+                   headerUrl.getProtocol().equalsIgnoreCase(targetUrl.getProtocol());
         } catch (MalformedURLException e) {
-            throw new CsrfException();
+            return false;
         }
     }
 
@@ -59,20 +55,46 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
         return randomDataGenerator.nextSecureHexString(24);
     }
 
-    private void setCsrfTokens(HttpServletResponse response) {
+    private void setCsrfTokens(HttpServletRequest request, HttpServletResponse response) {
         String token = generateToken();
         response.addHeader(CSRF_TOKEN_HEADER_NAME, token);
 
-        Cookie cookie = new Cookie(CSRF_TOKEN_COOKIE_NAME, token);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        HttpSession session = request.getSession();
+        session.setAttribute(CSRF_TOKEN_ATTRIBUTE, token);
+    }
+
+    private boolean hasValidCsrfToken(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        if (session == null) {
+            return false;
+        }
+
+        String csrfAttribute = (String) session.getAttribute(CsrfInterceptor.CSRF_TOKEN_ATTRIBUTE);
+        if (csrfAttribute == null) {
+            return false;
+        }
+
+        String csrfHeaderValue = request.getHeader(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME);
+
+        return csrfAttribute.equals(csrfHeaderValue);
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        checkOrigin(request);
-        setCsrfTokens(response);
+        if (handler instanceof HandlerMethod) {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            if (handlerMethod.hasMethodAnnotation(RequiresCsrfToken.class) || handlerMethod.hasMethodAnnotation(RequiresSession.class)) {
+                if (!hasValidOriginOrReferer(request)) {
+                    throw new CsrfException();
+                }
+
+                if (!hasValidCsrfToken(request)) {
+                    throw new CsrfException();
+                }
+            }
+        }
+
+        setCsrfTokens(request, response);
 
         return true;
     }

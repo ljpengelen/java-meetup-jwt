@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import io.jsonwebtoken.Jwts;
 import nl.kabisa.meetup.jwtbased.accounts.repository.Account;
 import nl.kabisa.meetup.jwtbased.accounts.repository.AccountRepository;
-import nl.kabisa.meetup.jwtbased.interceptors.authentication.RequireValidToken;
+import nl.kabisa.meetup.jwtbased.interceptors.authentication.RequiresValidJwt;
 
 @RestController
 @RequestMapping("/account")
@@ -40,14 +40,14 @@ public class AccountController {
         return new SanitizedAccountDto(createdAccount.getId(), createdAccount.getUsername());
     }
 
-    @RequireValidToken
+    @RequiresValidJwt
     @RequestMapping()
     public SanitizedAccountDto getAccount(@CookieValue(value = REFRESH_TOKEN_NAME, defaultValue = "") String jwt) {
         Account account = getAccountForLoggedInUser(jwt);
         return new SanitizedAccountDto(account.getId(), account.getUsername());
     }
 
-    @RequireValidToken
+    @RequiresValidJwt
     @RequestMapping(method = RequestMethod.PUT)
     public SanitizedAccountDto updateAccount(
             @RequestBody @Valid AccountDto request, @CookieValue(value = REFRESH_TOKEN_NAME, defaultValue = "") String jwt) throws UsernameInUseException {
@@ -65,7 +65,7 @@ public class AccountController {
         return new SanitizedAccountDto(updatedAccount.getId(), updatedAccount.getUsername());
     }
 
-    @RequireValidToken
+    @RequiresValidJwt
     @RequestMapping(method = RequestMethod.DELETE)
     public @ResponseStatus(HttpStatus.NO_CONTENT) void deleteAccount(@CookieValue(value = REFRESH_TOKEN_NAME, defaultValue = "") String jwt) {
         Account account = getAccountForLoggedInUser(jwt);
