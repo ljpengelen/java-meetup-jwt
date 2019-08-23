@@ -9,7 +9,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.util.WebUtils;
+
+import nl.kabisa.meetup.jwtbased.interceptors.authentication.RequiresValidJwt;
 
 @Component
 public class CsrfInterceptor extends HandlerInterceptorAdapter {
@@ -20,43 +24,51 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
     @Value("${csrf.target}")
     private String target;
 
-    private void checkOrigin(HttpServletRequest request) throws CsrfException {
+    private boolean hasValidOriginOrReferer(HttpServletRequest request) {
         String origin = request.getHeader("Origin");
         if (StringUtils.isNotBlank(origin)) {
-            compareWithTarget(origin);
-            return;
+            return matchesTarget(origin);
         }
 
         String referer = request.getHeader("Referer");
         if (StringUtils.isNotBlank(referer)) {
-            compareWithTarget(referer);
-            return;
+            return matchesTarget(referer);
         }
 
-        throw new CsrfException();
+        return false;
     }
 
-    private void compareWithTarget(String origin) throws CsrfException {
+    private boolean matchesTarget(String headerValue) {
         try {
             URL targetUrl = new URL(target);
-            URL originUrl = new URL(origin);
+            URL headerUrl = new URL(headerValue);
 
-            boolean matches = true;
-            matches &= originUrl.getPort() == targetUrl.getPort();
-            matches &= originUrl.getHost().equalsIgnoreCase(targetUrl.getHost());
-            matches &= originUrl.getProtocol().equalsIgnoreCase(targetUrl.getProtocol());
-
-            if (!matches) {
-                throw new CsrfException();
-            }
+            return headerUrl.getPort() == targetUrl.getPort() &&
+                   headerUrl.getHost().equalsIgnoreCase(targetUrl.getHost()) &&
+                   headerUrl.getProtocol().equalsIgnoreCase(targetUrl.getProtocol());
         } catch (MalformedURLException e) {
-            throw new CsrfException();
+            return false;
         }
     }
 
     private String generateToken() {
         RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
         return randomDataGenerator.nextSecureHexString(24);
+    }
+
+    private boolean hasValidCsrfToken(HttpServletRequest request) {
+        Cookie csrfCookie = WebUtils.getCookie(request, CsrfInterceptor.CSRF_TOKEN_COOKIE_NAME);
+        if (csrfCookie == null) {
+            return false;
+        }
+
+        String csrfCookieValue = csrfCookie.getValue();
+        String csrfHeaderValue = request.getHeader(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME);
+        if (csrfCookieValue.equals(csrfHeaderValue)) {
+            return true;
+        }
+
+        return false;
     }
 
     private void setCsrfTokens(HttpServletResponse response) {
@@ -71,7 +83,19 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        checkOrigin(request);
+        if (handler instanceof HandlerMethod) {
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            if (handlerMethod.hasMethodAnnotation(RequiresValidCsrfToken.class) || handlerMethod.hasMethodAnnotation(RequiresValidJwt.class)) {
+                if (!hasValidOriginOrReferer(request)) {
+                    throw new CsrfException();
+                }
+
+                if (!hasValidCsrfToken(request)) {
+                    throw new CsrfException();
+                }
+            }
+        }
+
         setCsrfTokens(response);
 
         return true;
