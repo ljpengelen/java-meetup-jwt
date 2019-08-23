@@ -3,8 +3,11 @@ package nl.kabisa.meetup.jwtbased.interceptors.csrf;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.http.*;
 
+import org.apache.commons.codec.digest.HmacAlgorithms;
+import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,8 +24,19 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
     public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-Token";
     public static final String CSRF_TOKEN_COOKIE_NAME = "csrf-token";
 
+    @Value("${jwt.secret_key}")
+    private String encodedKey;
+
     @Value("${csrf.target}")
     private String target;
+
+    private RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
+    private HmacUtils hmacUtils;
+
+    @PostConstruct
+    public void initialize() {
+        this.hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_512, encodedKey);
+    }
 
     private boolean hasValidOriginOrReferer(HttpServletRequest request) {
         String origin = request.getHeader("Origin");
@@ -51,9 +65,8 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
         }
     }
 
-    private String generateToken() {
-        RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
-        return randomDataGenerator.nextSecureHexString(24);
+    private String hmac(String token) {
+        return hmacUtils.hmacHex(token);
     }
 
     private boolean hasValidCsrfToken(HttpServletRequest request) {
@@ -63,19 +76,33 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
         }
 
         String csrfCookieValue = csrfCookie.getValue();
-        String csrfHeaderValue = request.getHeader(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME);
-        if (csrfCookieValue.equals(csrfHeaderValue)) {
-            return true;
+
+        int separatorIndex = csrfCookieValue.indexOf('.');
+        if (separatorIndex == -1) {
+            return false;
         }
 
-        return false;
+        String tokenInCookie = csrfCookieValue.substring(0, separatorIndex);
+        String hmacInCookie = csrfCookieValue.substring(separatorIndex + 1);
+
+        String hmac = hmac(tokenInCookie);
+
+        String tokenInHeader = request.getHeader(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME);
+
+        return tokenInCookie.equals(tokenInHeader) && hmacInCookie.equals(hmac);
+    }
+
+    private String generateToken() {
+        return randomDataGenerator.nextSecureHexString(24);
     }
 
     private void setCsrfTokens(HttpServletResponse response) {
         String token = generateToken();
         response.addHeader(CSRF_TOKEN_HEADER_NAME, token);
 
-        Cookie cookie = new Cookie(CSRF_TOKEN_COOKIE_NAME, token);
+        String hmac = hmac(token);
+
+        Cookie cookie = new Cookie(CSRF_TOKEN_COOKIE_NAME, token + "." + hmac);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
