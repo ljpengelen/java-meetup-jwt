@@ -12,8 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import nl.kabisa.meetup.sessionbased.interceptors.authentication.RequiresSession;
-
 @Component
 public class CsrfInterceptor extends HandlerInterceptorAdapter {
 
@@ -83,7 +81,7 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (handler instanceof HandlerMethod) {
             HandlerMethod handlerMethod = (HandlerMethod) handler;
-            if (handlerMethod.hasMethodAnnotation(RequiresCsrfToken.class) || handlerMethod.hasMethodAnnotation(RequiresSession.class)) {
+            if (handlerMethod.hasMethodAnnotation(RequiresCsrfToken.class)) {
                 if (!hasValidOriginOrReferer(request)) {
                     throw new CsrfException();
                 }
