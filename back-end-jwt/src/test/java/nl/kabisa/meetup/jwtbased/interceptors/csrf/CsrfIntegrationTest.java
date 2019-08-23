@@ -101,28 +101,4 @@ public class CsrfIntegrationTest {
         ResponseEntity<Void> response = testRestTemplate.exchange(getSessionUri(), HttpMethod.DELETE, entity, Void.class);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
-
-    @Test
-    public void invalidCookie() {
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME, "BS");
-        headers.add("Origin", origin);
-        headers.add("Cookie", "csrf-token=BS.fakeHmac");
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<Void> response = testRestTemplate.exchange(getSessionUri(), HttpMethod.DELETE, entity, Void.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    public void validCookie() {
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME, "BS");
-        headers.add("Origin", origin);
-        headers.add("Cookie", "csrf-token=BS.10fc666da997f1c75a97855e2b3d720dec2c938aff8b1730de9d99512ce5143b773633407c76f7bbe374dfae91280660fd20b199430b8b1aa17afd30f21bfc16");
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<Void> response = testRestTemplate.exchange(getSessionUri(), HttpMethod.DELETE, entity, Void.class);
-        Assert.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-    }
 }

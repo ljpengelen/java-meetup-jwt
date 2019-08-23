@@ -3,11 +3,8 @@ package nl.kabisa.meetup.jwtbased.interceptors.csrf;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.http.*;
 
-import org.apache.commons.codec.digest.HmacAlgorithms;
-import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.math3.random.RandomDataGenerator;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,8 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.util.WebUtils;
-
-import nl.kabisa.meetup.jwtbased.interceptors.authentication.RequiresValidJwt;
 
 @Component
 public class CsrfInterceptor extends HandlerInterceptorAdapter {
@@ -31,12 +26,6 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
     private String target;
 
     private RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
-    private HmacUtils hmacUtils;
-
-    @PostConstruct
-    public void initialize() {
-        this.hmacUtils = new HmacUtils(HmacAlgorithms.HMAC_SHA_512, encodedKey);
-    }
 
     private boolean hasValidOriginOrReferer(HttpServletRequest request) {
         String origin = request.getHeader("Origin");
@@ -65,31 +54,16 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
         }
     }
 
-    private String hmac(String token) {
-        return hmacUtils.hmacHex(token);
-    }
-
     private boolean hasValidCsrfToken(HttpServletRequest request) {
         Cookie csrfCookie = WebUtils.getCookie(request, CsrfInterceptor.CSRF_TOKEN_COOKIE_NAME);
         if (csrfCookie == null) {
             return false;
         }
 
-        String csrfCookieValue = csrfCookie.getValue();
-
-        int separatorIndex = csrfCookieValue.indexOf('.');
-        if (separatorIndex == -1) {
-            return false;
-        }
-
-        String tokenInCookie = csrfCookieValue.substring(0, separatorIndex);
-        String hmacInCookie = csrfCookieValue.substring(separatorIndex + 1);
-
-        String hmac = hmac(tokenInCookie);
-
+        String tokenInCookie = csrfCookie.getValue();
         String tokenInHeader = request.getHeader(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME);
 
-        return tokenInCookie.equals(tokenInHeader) && hmacInCookie.equals(hmac);
+        return tokenInCookie.equals(tokenInHeader);
     }
 
     private String generateToken() {
@@ -100,9 +74,7 @@ public class CsrfInterceptor extends HandlerInterceptorAdapter {
         String token = generateToken();
         response.addHeader(CSRF_TOKEN_HEADER_NAME, token);
 
-        String hmac = hmac(token);
-
-        Cookie cookie = new Cookie(CSRF_TOKEN_COOKIE_NAME, token + "." + hmac);
+        Cookie cookie = new Cookie(CSRF_TOKEN_COOKIE_NAME, token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         response.addCookie(cookie);
