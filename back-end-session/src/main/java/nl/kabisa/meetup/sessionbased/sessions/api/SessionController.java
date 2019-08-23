@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import nl.kabisa.meetup.sessionbased.accounts.repository.Account;
 import nl.kabisa.meetup.sessionbased.accounts.repository.AccountRepository;
+import nl.kabisa.meetup.sessionbased.interceptors.csrf.RequiresCsrfToken;
 
 @RequestMapping("/session")
 @RestController
@@ -20,6 +21,7 @@ public class SessionController {
     @Autowired
     AccountRepository accountRepository;
 
+    @RequiresCsrfToken
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody LoginResponse login(@RequestBody @Valid LoginRequest request, HttpSession session) {
         Account account = accountRepository.findByUsername(request.getUsername());
@@ -45,6 +47,7 @@ public class SessionController {
         return new StatusResponse(SessionStatus.LOGGED_IN);
     }
 
+    @RequiresCsrfToken
     @RequestMapping(method = RequestMethod.DELETE)
     public @ResponseStatus(HttpStatus.NO_CONTENT) void logout(HttpSession session) {
         session.removeAttribute("accountId");

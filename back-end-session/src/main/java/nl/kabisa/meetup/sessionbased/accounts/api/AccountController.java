@@ -2,7 +2,7 @@ package nl.kabisa.meetup.sessionbased.accounts.api;
 
 import nl.kabisa.meetup.sessionbased.accounts.repository.Account;
 import nl.kabisa.meetup.sessionbased.accounts.repository.AccountRepository;
-import nl.kabisa.meetup.sessionbased.interceptors.authentication.RequireSession;
+import nl.kabisa.meetup.sessionbased.interceptors.authentication.RequiresSession;
 import org.jasypt.util.password.StrongPasswordEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,14 +33,14 @@ public class AccountController {
         return new SanitizedAccountDto(createdAccount.getId(), createdAccount.getUsername());
     }
 
-    @RequireSession
+    @RequiresSession
     @RequestMapping()
     public SanitizedAccountDto getAccount(HttpSession session) {
         Account account = getAccountForLoggedInUser(session);
         return new SanitizedAccountDto(account.getId(), account.getUsername());
     }
 
-    @RequireSession
+    @RequiresSession
     @RequestMapping(method = RequestMethod.PUT)
     public SanitizedAccountDto updateAccount(@RequestBody @Valid AccountDto request, HttpSession session) throws UsernameInUseException {
         Account existingAccount = accountRepository.findByUsername(request.getUsername());
@@ -57,7 +57,7 @@ public class AccountController {
         return new SanitizedAccountDto(updatedAccount.getId(), updatedAccount.getUsername());
     }
 
-    @RequireSession
+    @RequiresSession
     @RequestMapping(method = RequestMethod.DELETE)
     public @ResponseStatus(HttpStatus.NO_CONTENT) void deleteAccount(HttpSession session) {
         Account account = getAccountForLoggedInUser(session);

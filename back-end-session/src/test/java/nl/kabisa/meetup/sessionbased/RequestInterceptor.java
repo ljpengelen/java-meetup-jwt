@@ -17,8 +17,6 @@ public class RequestInterceptor implements ClientHttpRequestInterceptor {
 
         request.getHeaders().set(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME, previousToken);
 
-        System.out.println("Set header to " + previousToken);
-
         ClientHttpResponse response = execution.execute(request, body);
         previousToken = response.getHeaders().getFirst(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME);
 
