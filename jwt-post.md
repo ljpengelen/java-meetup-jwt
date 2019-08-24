@@ -156,8 +156,10 @@ It takes a little effort to keep track of the latest token value and forward it 
 
 For the JWT-based back end, both measures above come from the section of the [OWASP cheat sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) describing measures for defense in depth.
 The second measure is known as the double-submit cookie technique.
-To mitigate the known issues of this technique, a signature is sent along with the CSRF token in the cookie.
-This makes it possible for the back-end application to verify that it produced the token itself.
+To mitigate the known issues of this technique, the CSRF token is stored in a JWT.
+Additionally, the account identifier is included in this JWT as well for logged-in users.
+Storing the CSRF token in a JWT makes it possible for the back-end application to verify that it produced the token itself.
+Combining the CSRF token with an account identifier makes it impossible for attackers to reuse a token for another user, even they were able to [replace cookies](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#double-submit-cookie).
 
 ## Lifespan of a JWT
 
