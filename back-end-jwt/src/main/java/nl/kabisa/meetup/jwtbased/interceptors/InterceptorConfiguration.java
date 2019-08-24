@@ -1,7 +1,7 @@
 package nl.kabisa.meetup.jwtbased.interceptors;
 
 import nl.kabisa.meetup.jwtbased.interceptors.authentication.AuthenticationInterceptor;
-import nl.kabisa.meetup.jwtbased.interceptors.csrf.CsrfInterceptor;
+import nl.kabisa.meetup.jwtbased.interceptors.csrf.CsrfHeaderInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,7 @@ public class InterceptorConfiguration extends WebMvcConfigurerAdapter {
     private boolean enableCsrfCheck;
 
     @Autowired
-    private CsrfInterceptor csrfInterceptor;
+    private CsrfHeaderInterceptor csrfHeaderInterceptor;
 
     @Autowired
     private AuthenticationInterceptor authenticationInterceptor;
@@ -23,7 +23,7 @@ public class InterceptorConfiguration extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         if (enableCsrfCheck) {
-            registry.addInterceptor(csrfInterceptor).excludePathPatterns("/error");
+            registry.addInterceptor(csrfHeaderInterceptor).excludePathPatterns("/error");
         }
         registry.addInterceptor(authenticationInterceptor).excludePathPatterns("/error");
     }

@@ -1,7 +1,6 @@
 package nl.kabisa.meetup.jwtbased.sessions.api;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -12,6 +11,11 @@ public class SessionControllerIntegrationTest extends IntegrationTest {
 
     private static final String USERNAME = "username";
     private static final String PASSWORD = "password";
+
+    @Before
+    public void getCsrfToken() {
+        testRestTemplate.getForEntity(getSessionUri(), StatusResponse.class);
+    }
 
     @Test
     public void loginWithUnknownUsername() {
