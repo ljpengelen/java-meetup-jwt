@@ -1,7 +1,7 @@
 package nl.kabisa.meetup.jwtbased.sessions.api;
 
-import static nl.kabisa.meetup.jwtbased.TokenNames.ACCESS_TOKEN_NAME;
-import static nl.kabisa.meetup.jwtbased.TokenNames.REFRESH_TOKEN_NAME;
+import static nl.kabisa.meetup.jwtbased.interceptors.authentication.AuthenticationInterceptor.ACCESS_TOKEN_COOKIE_NAME;
+import static nl.kabisa.meetup.jwtbased.interceptors.authentication.AuthenticationInterceptor.REFRESH_TOKEN_COOKIE_NAME;
 
 import java.time.Instant;
 import java.util.Date;
@@ -20,7 +20,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import nl.kabisa.meetup.jwtbased.accounts.repository.Account;
 import nl.kabisa.meetup.jwtbased.accounts.repository.AccountRepository;
-import nl.kabisa.meetup.jwtbased.interceptors.csrf.RequiresValidCsrfToken;
+import nl.kabisa.meetup.jwtbased.interceptors.csrf.RequiresCsrfProtection;
 
 @RequestMapping("/session")
 @RestController
@@ -37,7 +37,7 @@ public class SessionController {
     @Autowired
     AccountRepository accountRepository;
 
-    @RequiresValidCsrfToken
+    @RequiresCsrfProtection
     @RequestMapping(method = RequestMethod.POST)
     public LoginResponse login(@RequestBody @Valid LoginRequest request, HttpServletResponse response) {
         Account account = accountRepository.findByUsername(request.getUsername());
@@ -54,7 +54,7 @@ public class SessionController {
                 .setSubject(account.getId().toString())
                 .signWith(SignatureAlgorithm.HS512, encodedKey)
                 .compact();
-        Cookie cookie = new Cookie(REFRESH_TOKEN_NAME, jwt);
+        Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, jwt);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(expiration);
         cookie.setPath("/");
@@ -64,7 +64,7 @@ public class SessionController {
     }
 
     @GetMapping
-    public StatusResponse getStatus(@CookieValue(value = REFRESH_TOKEN_NAME, required = false) String jwt) {
+    public StatusResponse getStatus(@CookieValue(value = REFRESH_TOKEN_COOKIE_NAME, required = false) String jwt) {
         if (jwt == null) {
             return new StatusResponse(SessionStatus.LOGGED_OUT);
         }
@@ -78,11 +78,11 @@ public class SessionController {
         return new StatusResponse(SessionStatus.LOGGED_IN);
     }
 
-    @RequiresValidCsrfToken
+    @RequiresCsrfProtection
     @RequestMapping(method = RequestMethod.DELETE)
     public @ResponseStatus(HttpStatus.NO_CONTENT) void logout(HttpServletResponse response) {
-        deleteCookie(REFRESH_TOKEN_NAME, response);
-        deleteCookie(ACCESS_TOKEN_NAME, response);
+        deleteCookie(REFRESH_TOKEN_COOKIE_NAME, response);
+        deleteCookie(ACCESS_TOKEN_COOKIE_NAME, response);
     }
 
     private void deleteCookie(String name, HttpServletResponse response) {

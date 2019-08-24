@@ -1,6 +1,6 @@
 package nl.kabisa.meetup.jwtbased.accounts.api;
 
-import static nl.kabisa.meetup.jwtbased.TokenNames.REFRESH_TOKEN_NAME;
+import static nl.kabisa.meetup.jwtbased.interceptors.authentication.AuthenticationInterceptor.REFRESH_TOKEN_COOKIE_NAME;
 
 import javax.validation.Valid;
 
@@ -42,7 +42,7 @@ public class AccountController {
 
     @RequiresValidJwt
     @RequestMapping()
-    public SanitizedAccountDto getAccount(@CookieValue(value = REFRESH_TOKEN_NAME, defaultValue = "") String jwt) {
+    public SanitizedAccountDto getAccount(@CookieValue(value = REFRESH_TOKEN_COOKIE_NAME, defaultValue = "") String jwt) {
         Account account = getAccountForLoggedInUser(jwt);
         return new SanitizedAccountDto(account.getId(), account.getUsername());
     }
@@ -50,7 +50,7 @@ public class AccountController {
     @RequiresValidJwt
     @RequestMapping(method = RequestMethod.PUT)
     public SanitizedAccountDto updateAccount(
-            @RequestBody @Valid AccountDto request, @CookieValue(value = REFRESH_TOKEN_NAME, defaultValue = "") String jwt) throws UsernameInUseException {
+            @RequestBody @Valid AccountDto request, @CookieValue(value = REFRESH_TOKEN_COOKIE_NAME, defaultValue = "") String jwt) throws UsernameInUseException {
         Account existingAccount = accountRepository.findByUsername(request.getUsername());
         Account accountForLoggedInUser = getAccountForLoggedInUser(jwt);
         if (existingAccount != null && existingAccount.getId() != accountForLoggedInUser.getId()) {
@@ -67,7 +67,7 @@ public class AccountController {
 
     @RequiresValidJwt
     @RequestMapping(method = RequestMethod.DELETE)
-    public @ResponseStatus(HttpStatus.NO_CONTENT) void deleteAccount(@CookieValue(value = REFRESH_TOKEN_NAME, defaultValue = "") String jwt) {
+    public @ResponseStatus(HttpStatus.NO_CONTENT) void deleteAccount(@CookieValue(value = REFRESH_TOKEN_COOKIE_NAME, defaultValue = "") String jwt) {
         Account account = getAccountForLoggedInUser(jwt);
         accountRepository.delete(account);
     }

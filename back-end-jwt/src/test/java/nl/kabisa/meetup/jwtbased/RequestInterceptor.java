@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.*;
 
-import nl.kabisa.meetup.jwtbased.interceptors.csrf.CsrfInterceptor;
+import nl.kabisa.meetup.jwtbased.interceptors.authentication.AuthenticationInterceptor;
 
 public class RequestInterceptor implements ClientHttpRequestInterceptor {
 
@@ -15,10 +15,10 @@ public class RequestInterceptor implements ClientHttpRequestInterceptor {
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         request.getHeaders().set("Origin", "http://localhost:8000");
 
-        request.getHeaders().set(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME, previousToken);
+        request.getHeaders().set(AuthenticationInterceptor.CSRF_TOKEN_HEADER_NAME, previousToken);
 
         ClientHttpResponse response = execution.execute(request, body);
-        previousToken = response.getHeaders().getFirst(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME);
+        previousToken = response.getHeaders().getFirst(AuthenticationInterceptor.CSRF_TOKEN_HEADER_NAME);
 
         return response;
     }
