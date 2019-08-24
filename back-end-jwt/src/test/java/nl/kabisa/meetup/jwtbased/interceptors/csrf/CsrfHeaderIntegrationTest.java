@@ -1,6 +1,7 @@
 package nl.kabisa.meetup.jwtbased.interceptors.csrf;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,12 +15,13 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import nl.kabisa.meetup.jwtbased.interceptors.authentication.AuthenticationInterceptor;
 import nl.kabisa.meetup.jwtbased.sessions.api.StatusResponse;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-public class CsrfIntegrationTest {
+public class CsrfHeaderIntegrationTest {
 
     @Value("${csrf.target}")
     private String origin;
@@ -29,7 +31,7 @@ public class CsrfIntegrationTest {
 
     private TestRestTemplate testRestTemplate;
 
-    public CsrfIntegrationTest() {
+    public CsrfHeaderIntegrationTest() {
         testRestTemplate = new TestRestTemplate(new RestTemplate(), null, null, TestRestTemplate.HttpClientOption.ENABLE_COOKIES);
     }
 
@@ -40,35 +42,35 @@ public class CsrfIntegrationTest {
     @Test
     public void noHeadersNoToken() {
         ResponseEntity<Void> response = testRestTemplate.exchange(getSessionUri(), HttpMethod.DELETE, HttpEntity.EMPTY, Void.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
     public void tokenAndOrigin() {
         ResponseEntity<StatusResponse> sessionStatusResponse = testRestTemplate.getForEntity(getSessionUri(), StatusResponse.class);
-        String token = sessionStatusResponse.getHeaders().getFirst(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME);
+        String token = sessionStatusResponse.getHeaders().getFirst(AuthenticationInterceptor.CSRF_TOKEN_HEADER_NAME);
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME, token);
+        headers.add(AuthenticationInterceptor.CSRF_TOKEN_HEADER_NAME, token);
         headers.add("Origin", origin);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Void> response = testRestTemplate.exchange(getSessionUri(), HttpMethod.DELETE, entity, Void.class);
-        Assert.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test
     public void tokenAndReferer() {
         ResponseEntity<StatusResponse> sessionStatusResponse = testRestTemplate.getForEntity(getSessionUri(), StatusResponse.class);
-        String token = sessionStatusResponse.getHeaders().getFirst(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME);
+        String token = sessionStatusResponse.getHeaders().getFirst(AuthenticationInterceptor.CSRF_TOKEN_HEADER_NAME);
 
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME, token);
+        headers.add(AuthenticationInterceptor.CSRF_TOKEN_HEADER_NAME, token);
         headers.add("Referer", origin);
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Void> logOutResponse = testRestTemplate.exchange(getSessionUri(), HttpMethod.DELETE, entity, Void.class);
-        Assert.assertEquals(HttpStatus.NO_CONTENT, logOutResponse.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, logOutResponse.getStatusCode());
     }
 
     @Test
@@ -78,7 +80,7 @@ public class CsrfIntegrationTest {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Void> response = testRestTemplate.exchange(getSessionUri(), HttpMethod.DELETE, entity, Void.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
     @Test
@@ -88,17 +90,6 @@ public class CsrfIntegrationTest {
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Void> response = testRestTemplate.exchange(getSessionUri(), HttpMethod.DELETE, entity, Void.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    public void wrongToken() {
-        MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.add(CsrfInterceptor.CSRF_TOKEN_HEADER_NAME, "BS");
-        headers.add("Origin", origin);
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-        ResponseEntity<Void> response = testRestTemplate.exchange(getSessionUri(), HttpMethod.DELETE, entity, Void.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 }
