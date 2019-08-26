@@ -23,7 +23,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
     public static final String ACCESS_TOKEN_COOKIE_NAME = "jwt-access";
 
     public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-Token";
-    public static final String CSRF_TOKEN_COOKIE_NAME = "csrf-token";
+    public static final String CSRF_TOKEN_COOKIE_NAME = "__Host-csrf-token";
     private static final String CSRF_TOKEN_CLAIM_NAME = "csrfToken";
 
     @Value("${jwt.secret_key}")

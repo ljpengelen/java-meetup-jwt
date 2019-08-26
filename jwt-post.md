@@ -206,3 +206,14 @@ Instead, I hope this post allows you to follow my reasoning and helps you make i
 
 I'm well aware that the contradictory advice I encountered years ago is still out there, and that most people put their JWTs in a header.
 I guess those people are more scared of CSRF and that I'm more afraid of XSS.
+
+## *Addendum*
+
+Right after this blog post got published, my colleague [Luk van den Borne](https://github.com/lukvdborne) shared a post about [securing cookies with cookie prefixes](https://www.sjoerdlangkemper.nl/2017/02/09/cookie-prefixes/).
+Coincidentally, that post describes a way to patch one of the security holes in the JWT-based back end.
+This back end is vulnerable for an attack called [login CSRF](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#login-csrf), which is when an attacker is able to make users log in using the attacker's account.
+This attack is possible when an attacker has access to an insecure subdomain of the domain that hosts your app.
+Attackers can use this insecure subdomain to set an arbitrary value for the cookie holding the CSRF token.
+This attack is only possible for the API call that is used to log in, because the CSRF token is tied to the user's account identifier after logging in.
+
+Simply adding the prefix `__Host-` to the name of the cookie that holds the CSRF token triggers [browser behavior that mitigates this type of attack](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie#Directives), at least for users of Chrome and Firefox.
