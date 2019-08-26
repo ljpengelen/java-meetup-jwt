@@ -16,7 +16,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 public class CsrfInterceptor extends HandlerInterceptorAdapter {
 
     public static final String CSRF_TOKEN_HEADER_NAME = "X-CSRF-Token";
-    public static final String CSRF_TOKEN_ATTRIBUTE = "csrfToken";
+    public static final String CSRF_TOKEN_ATTRIBUTE = "__Host-csrfToken";
 
     @Value("${csrf.target}")
     private String target;
