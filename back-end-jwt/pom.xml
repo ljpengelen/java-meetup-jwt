@@ -16,7 +16,7 @@
         <commons-math3.version>3.6.1</commons-math3.version>
         <apache.httpclient.version>4.5.13</apache.httpclient.version>
         <jjwt.version>0.7.0</jjwt.version>
-        <postgresql.version>42.3.3</postgresql.version>
+        <postgresql.version>42.4.1</postgresql.version>
     </properties>
 
     <parent>
